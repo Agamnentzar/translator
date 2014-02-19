@@ -1,0 +1,56 @@
+extends pageLayout
+
+block pageContent
+	form.form-horizontal(action='', method='post', role='form')
+		input(type='hidden', name='id', value=user.id)
+		
+		.form-group
+			h2.col-sm-offset-4.col-sm-8 User
+		if error
+			.alert.alert-danger=error
+		.form-group
+			label.col-sm-4.control-label(for='inputEmail') Display Name
+			.col-sm-8
+				input#inputEmail.form-control(type='text', name='name', value=user.name, autocomplete='off', required)
+		.form-group
+			label.col-sm-4.control-label(for='inputEmail') Email
+			.col-sm-8
+				input#inputEmail.form-control(type='email', name='email', value=user.email, autocomplete='off', required)
+		.form-group
+			label.col-sm-4.control-label(for='inputPassword')=user.id ? 'New Password' : 'Password'
+			.col-sm-8
+				input#inputPassword.form-control(type='password', name='password', autocomplete='off', required=!user.id)
+		.form-group
+			label.col-sm-4.control-label(for='inputPassword2')=user.id ? 'Repeat New Password' : 'Repeat Password'
+			.col-sm-8
+				input#inputPassword2.form-control(type='password', name='password2', autocomplete='off', required=!user.id)
+		
+		.form-group
+			h3.col-sm-offset-4.col-sm-8 Permissions
+		if loggedInUser.admin
+			each s in sets
+				- var name = 'permissions[' + s.id + ']';
+				.form-group
+					label.col-sm-4.control-label=s.title
+					.col-sm-8
+						label.checkbox-inline
+							input.permission-view(type='checkbox', name=name, value='view', checked=user.can(s.id, 'view'))
+							| view
+						label.checkbox-inline
+							input.permission-add-remove(type='checkbox', name=name, value='add', checked=user.can(s.id, 'add'))
+							| add & remove
+						label.checkbox-inline
+							input.permission-edit-all(type='checkbox', name=name, value='all', checked=user.can(s.id, 'all'))
+							| edit all
+						br
+						each l in s.langs
+							- var c = cultures.get(l);
+							label.checkbox-inline
+								input.permission-edit-lang(type='checkbox', name=name, value=l, checked=user.can(s.id, l))
+								img(src=c.flag, title=c.name)
+
+		.form-group
+			.col-sm-offset-4.col-sm-8
+				a.btn.btn-default(href='/users') Cancel
+				| 
+				button.btn.btn-primary(type='submit') Save

@@ -1,0 +1,30 @@
+extends pageLayout
+
+block pageContent
+	div(style='margin: 20px 0;')
+		a.btn.btn-sm.btn-primary(href='/users/add') Add User
+	table#users
+		thead
+			tr
+				th Name
+				th Email
+				th Commands
+		tbody
+			each u in users
+				tr
+					td=u.name
+					td=u.email
+					td
+						a.btn.btn-sm.btn-default(href='/users/edit?id=' + u._id) Edit
+
+						if !u.admin
+							a.btn.btn-sm.btn-default(href='/users/admin?set=true&id=' + u._id) Make Admin
+						else if loggedInUser.id === u.id
+							a.btn.btn-sm.btn-warning.disabled(href='#') Unmake Admin
+						else
+							a.btn.btn-sm.btn-warning(href='/users/admin?set=false&id=' + u._id) Unmake Admin
+
+						if loggedInUser.id === u.id
+							a.btn.btn-sm.btn-danger.disabled(href='#') Delete
+						else
+							a.btn.btn-sm.btn-danger.confirm(href='/users/delete?id=' + u._id) Delete

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+	#page
+		#user
+			strong=loggedInUser.name
+			a.btn.btn-danger(href="/logout") Sign Out
+		div
+			a.btn.btn-default(href='/') Translator
+			| 
+			a.btn.btn-default(href='/users') Users
+			| 
+			a.btn.btn-default(href='/sets') Sets
+		block pageContent

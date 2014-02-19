@@ -1,0 +1,21 @@
+extends layout
+
+block content
+	#login
+		div
+			div
+				form.form-horizontal(action='/login', method='post', role='form', style='width: 500px; margin: 100px auto;')
+					input(type='hidden', name='referer', value=referer)
+					if error
+						.alert.alert-danger=error
+					.form-group
+						label.col-sm-3.control-label(for='inputEmail') Email
+						.col-sm-9
+							input#inputEmail.form-control(type='email', name='email', value=email)
+					.form-group
+						label.col-sm-3.control-label(for='inputPassword') Password
+						.col-sm-9
+							input#inputPassword.form-control(type='password', name='password')
+					.form-group
+						.col-sm-offset-3.col-sm-9
+							button.btn.btn-success(type='submit') Sign in

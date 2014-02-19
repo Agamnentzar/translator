@@ -1,0 +1,49 @@
+extends pageLayout
+
+mixin lang(id, name)
+	p.lang-entry.form-control-static
+		input(type='hidden', name='langs[]', value=id)
+		img.flag(src='/images/flags/' + id + '.png')
+		b=name
+		| 
+		button.form-items-remove.btn.btn-sm.btn-default(data-lang=id) remove
+
+block pageContent
+	#form-items-template(style='display: none')
+		+lang('en', 'English')
+
+	form.form-horizontal(action='', method='post', role='form')
+		input(type='hidden', name='id', value=set._id)
+		.form-group
+			h2.col-sm-offset-4.col-sm-8 Set
+		if error
+			.alert.alert-danger=error
+		.form-group
+			label.col-sm-4.control-label(for='inputTitle') Title
+			.col-sm-8
+				input#inputTitle.form-control(type='text', name='title', value=set.title, autocomplete='off', required)
+				em.help-block Publicly visible title
+		.form-group
+			label.col-sm-4.control-label(for='inputName') Name
+			.col-sm-8
+				input#inputName.form-control(type='text', name='name', value=set.name, pattern='\\S+', autocomplete='off', required)
+				em.help-block Name used for access by dev tools (no spaces allowed)
+		.form-items
+			.form-group
+				label.col-sm-4.control-label Languages
+				.form-items-list.col-sm-8
+					each l in set.langs
+						- var c = cultures.get(l);
+						+lang(c.id, c.name)
+			.form-group
+				.col-sm-4
+				.col-sm-8
+					select.form-items-selector.form-control
+						option(value=0) add language
+						each c in cultures.all
+							option(value=c.id)=c.name
+		.form-group
+			.col-sm-offset-4.col-sm-8
+				a.btn.btn-default(href='/sets') Cancel
+				| 
+				button.btn.btn-primary(type='submit') Save

@@ -1,0 +1,13 @@
+extends layout
+
+block content
+	table
+		each c in cultures
+			tr
+				td= c.id
+				td= c.name
+				td= c.nativeName
+				td
+					img(src='/images/flags/' + c.id + '.png')
+					| 
+					= c.iso

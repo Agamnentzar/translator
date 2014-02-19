@@ -1,0 +1,43 @@
+extends layout
+
+block content
+	#translator
+		#controls
+			.btn-group
+				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+					span.value=sets[0].title
+					| 
+					span.caret
+				ul.dropdown-menu(role='menu')
+					each s in sets
+						li
+							a(href='#')=s.title
+			|  
+			input.input-sm.form-control(type='search', placeholder='search')
+			|  Reference: 
+			#lang-ref.btn-group
+				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+					span.value
+					| 
+					span.caret
+				ul.dropdown-menu(role='menu')
+			|  Target: 
+			#lang-target.btn-group
+				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+					span.value
+					| 
+					span.caret
+				ul.dropdown-menu(role='menu')
+			|  
+			button.btn.btn-sm.btn-default Add
+
+		#user
+			strong=loggedInUser.name
+			a.btn.btn-sm.btn-danger(href='/logout') Sign Out
+			| 
+			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit?id=' + user.id)) Settings
+
+		#table-head
+		#scrollable
+		#editor
+		

@@ -1,0 +1,25 @@
+extends pageLayout
+
+block pageContent
+	div(style='margin: 20px 0;')
+		a.btn.btn-sm.btn-primary(href='/sets/add') Add Set
+	table#users
+		thead
+			tr
+				th Name
+				th Title
+				th Languages
+				th Commands
+		tbody
+			each s in sets
+				tr
+					td=s.name
+					td=s.title
+					td
+						each l in s.langs
+							- var c = cultures.get(l)
+							img.flag(src=c.flag, title=c.name)
+					td(style='white-space: nowrap;')
+						a.btn.btn-sm.btn-default(href='/sets/edit?id=' + s._id) Edit
+						a.btn.btn-sm.btn-default.disabled(href='/sets/clone?id=' + s._id) Clone
+						a.btn.btn-sm.btn-danger.confirm(href='/sets/delete?id=' + s._id) Delete
