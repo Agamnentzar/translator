@@ -1,30 +1,40 @@
 extends pageLayout
 
 block pageContent
-	div(style='margin: 20px 0;')
+	.buttons
+		.checkbox.pull-right
+			label
+				input.button-show-deleted(type='checkbox', autocomplete='off')
+				| Show deleted
 		a.btn.btn-sm.btn-primary(href='/users/add') Add User
-	table#users
+	h1 Users
+	table
 		thead
 			tr
 				th Name
 				th Email
+				th Notes
 				th Commands
 		tbody
 			each u in users
-				tr
+				tr(class=u.deleted ? 'deleted' : '')
 					td=u.name
 					td=u.email
-					td
-						a.btn.btn-sm.btn-default(href='/users/edit?id=' + u._id) Edit
-
-						if !u.admin
-							a.btn.btn-sm.btn-default(href='/users/admin?set=true&id=' + u._id) Make Admin
-						else if loggedInUser.id === u.id
-							a.btn.btn-sm.btn-warning.disabled(href='#') Unmake Admin
+					td=u.notes
+					td.commands
+						if u.deleted
+							a.btn.btn-sm.btn-default(href='/users/restore/' + u.id) Restore
 						else
-							a.btn.btn-sm.btn-warning(href='/users/admin?set=false&id=' + u._id) Unmake Admin
+							a.btn.btn-sm.btn-default(href='/users/edit/' + u.id) Edit
 
-						if loggedInUser.id === u.id
-							a.btn.btn-sm.btn-danger.disabled(href='#') Delete
-						else
-							a.btn.btn-sm.btn-danger.confirm(href='/users/delete?id=' + u._id) Delete
+							if !u.admin
+								a.btn.btn-sm.btn-default(href='/users/admin/' + u.id + '?set=true') Make Admin
+							else if loggedInUser.id === u.id
+								a.btn.btn-sm.btn-warning.disabled(href='#') Unmake Admin
+							else
+								a.btn.btn-sm.btn-warning(href='/users/admin/' + u.id + '?set=false') Unmake Admin
+
+							if loggedInUser.id === u.id
+								a.btn.btn-sm.btn-danger.disabled(href='#') Delete
+							else
+								a.btn.btn-sm.btn-danger.confirm(href='/users/delete/' + u.id) Delete

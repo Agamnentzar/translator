@@ -1,14 +1,17 @@
 extends layout
 
 block content
-	#page
+	#page.hide-deleted
 		#user
 			strong=loggedInUser.name
 			a.btn.btn-danger(href="/logout") Sign Out
-		div
-			a.btn.btn-default(href='/') Translator
-			| 
-			a.btn.btn-default(href='/users') Users
-			| 
-			a.btn.btn-default(href='/sets') Sets
+			
+		ul.nav.nav-pills
+			if loggedInUser.admin
+				each m in [['/', 'Translator'], ['/users', 'Users'], ['/sets', 'Sets'], ['/snapshots', 'Snapshots']]
+					li(class=m[0] === currentLocation ? 'active' : '')
+						a(href=m[0])=m[1]
+
 		block pageContent
+
+	script(src='/scripts/scripts.js')

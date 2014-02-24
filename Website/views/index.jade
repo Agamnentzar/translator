@@ -1,19 +1,19 @@
 extends layout
 
 block content
-	#translator
-		#controls
-			.btn-group
+	#translator(data-permissions=JSON.stringify(loggedInUser.permissions))
+		#controls(style='visibility: hidden')
+			#dropdown-set.btn-group
 				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
-					span.value=sets[0].title
+					span.value
 					| 
 					span.caret
 				ul.dropdown-menu(role='menu')
 					each s in sets
 						li
-							a(href='#')=s.title
+							a(href='#', data-id=s.id)=s.title
 			|  
-			input.input-sm.form-control(type='search', placeholder='search')
+			input#search.input-sm.form-control(type='search', placeholder='search', autocomplete='off')
 			|  Reference: 
 			#lang-ref.btn-group
 				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
@@ -29,15 +29,20 @@ block content
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  
-			button.btn.btn-sm.btn-default Add
+			button.button-add.btn.btn-sm.btn-default Add
 
 		#user
 			strong=loggedInUser.name
 			a.btn.btn-sm.btn-danger(href='/logout') Sign Out
 			| 
-			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit?id=' + user.id)) Settings
+			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id)) Settings
 
-		#table-head
-		#scrollable
-		#editor
-		
+		#scrollable-head(style='display:none')
+		#scrollable(style='display:none')
+		#loading(style='display:none')
+			div
+				div
+					div
+						div LOADING...
+	
+	script(src='/scripts/translator.js')

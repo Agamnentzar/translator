@@ -1,9 +1,14 @@
 extends pageLayout
 
 block pageContent
-	div(style='margin: 20px 0;')
+	.buttons
+		.checkbox.pull-right
+			label
+				input.button-show-deleted(type='checkbox', autocomplete='off')
+				| Show deleted
 		a.btn.btn-sm.btn-primary(href='/sets/add') Add Set
-	table#users
+	h1 Sets
+	table
 		thead
 			tr
 				th Name
@@ -12,14 +17,18 @@ block pageContent
 				th Commands
 		tbody
 			each s in sets
-				tr
+				tr(class=s.deleted ? 'deleted' : '')
 					td=s.name
 					td=s.title
 					td
 						each l in s.langs
 							- var c = cultures.get(l)
 							img.flag(src=c.flag, title=c.name)
-					td(style='white-space: nowrap;')
-						a.btn.btn-sm.btn-default(href='/sets/edit?id=' + s._id) Edit
-						a.btn.btn-sm.btn-default.disabled(href='/sets/clone?id=' + s._id) Clone
-						a.btn.btn-sm.btn-danger.confirm(href='/sets/delete?id=' + s._id) Delete
+					td.commands
+						if s.deleted
+							a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
+						else
+							a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
+							a.btn.btn-sm.btn-default(href='/sets/import/' + s.id) Import
+							a.btn.btn-sm.btn-default.disabled(href='/sets/clone/' + s.id) Clone
+							a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id) Delete

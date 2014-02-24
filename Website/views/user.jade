@@ -2,55 +2,57 @@ extends pageLayout
 
 block pageContent
 	form.form-horizontal(action='', method='post', role='form')
-		input(type='hidden', name='id', value=user.id)
-		
 		.form-group
 			h2.col-sm-offset-4.col-sm-8 User
 		if error
 			.alert.alert-danger=error
 		.form-group
-			label.col-sm-4.control-label(for='inputEmail') Display Name
+			label.col-sm-4.control-label(for='inputName') Display Name
 			.col-sm-8
-				input#inputEmail.form-control(type='text', name='name', value=user.name, autocomplete='off', required)
+				input#inputName.form-control(type='text', name='name', value=user.name, autocomplete='off', required, readonly=!loggedInUser.admin)
 		.form-group
 			label.col-sm-4.control-label(for='inputEmail') Email
 			.col-sm-8
-				input#inputEmail.form-control(type='email', name='email', value=user.email, autocomplete='off', required)
+				input#inputEmail.form-control(type='email', name='email', value=user.email, autocomplete='off', required, readonly=!loggedInUser.admin)
 		.form-group
 			label.col-sm-4.control-label(for='inputPassword')=user.id ? 'New Password' : 'Password'
 			.col-sm-8
-				input#inputPassword.form-control(type='password', name='password', autocomplete='off', required=!user.id)
+				input#inputPassword.form-control(type='password', name='password', autocomplete='off', required=adding)
 		.form-group
 			label.col-sm-4.control-label(for='inputPassword2')=user.id ? 'Repeat New Password' : 'Repeat Password'
 			.col-sm-8
-				input#inputPassword2.form-control(type='password', name='password2', autocomplete='off', required=!user.id)
+				input#inputPassword2.form-control(type='password', name='password2', autocomplete='off', required=adding)
 		
-		.form-group
-			h3.col-sm-offset-4.col-sm-8 Permissions
 		if loggedInUser.admin
+			.form-group
+				label.col-sm-4.control-label(for='inputNotes') Admin Notes
+				.col-sm-8
+					input#inputNotes.form-control(type='text', name='notes', value=user.notes, autocomplete='off')
+			.form-group
+				h3.col-sm-offset-4.col-sm-8 Permissions
 			each s in sets
 				- var name = 'permissions[' + s.id + ']';
 				.form-group
 					label.col-sm-4.control-label=s.title
 					.col-sm-8
 						label.checkbox-inline
-							input.permission-view(type='checkbox', name=name, value='view', checked=user.can(s.id, 'view'))
+							input.permission-view(type='checkbox', name=name, value='view', checked=user.can('view', s.id))
 							| view
 						label.checkbox-inline
-							input.permission-add-remove(type='checkbox', name=name, value='add', checked=user.can(s.id, 'add'))
+							input.permission-add-remove(type='checkbox', name=name, value='add', checked=user.can('add', s.id))
 							| add & remove
 						label.checkbox-inline
-							input.permission-edit-all(type='checkbox', name=name, value='all', checked=user.can(s.id, 'all'))
+							input.permission-edit-all(type='checkbox', name=name, value='all', checked=user.can('all', s.id))
 							| edit all
 						br
 						each l in s.langs
 							- var c = cultures.get(l);
 							label.checkbox-inline
-								input.permission-edit-lang(type='checkbox', name=name, value=l, checked=user.can(s.id, l))
+								input.permission-edit-lang(type='checkbox', name=name, value=l, checked=user.can(l, s.id))
 								img(src=c.flag, title=c.name)
 
 		.form-group
 			.col-sm-offset-4.col-sm-8
-				a.btn.btn-default(href='/users') Cancel
+				a.btn.btn-default(href=loggedInUser.admin ? '/users' : '/') Cancel
 				| 
 				button.btn.btn-primary(type='submit') Save

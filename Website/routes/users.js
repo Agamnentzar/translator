@@ -1,4 +1,5 @@
 var model = require('../libs/model.js')
+  , utils = require('../libs/utils.js')
   , auth = require('../libs/auth.js')
   , cultures = require('../libs/cultures.js');
 
@@ -33,7 +34,7 @@ exports.add = function (req, res) {
     if (err)
       return res.render('error', { error: err });
 
-    res.render('user', { user: new User(), sets: sets });
+    res.render('user', { user: new User(), sets: sets, adding: true });
   });
 };
 
@@ -41,6 +42,7 @@ exports.addPost = function (req, res) {
   var user = new User();
   user.name = req.body.name;
   user.email = req.body.email;
+  user.notes = req.body.notes;
   user.password = auth.hash(req.body.password);
 
   var err = null;
@@ -49,7 +51,7 @@ exports.addPost = function (req, res) {
     err = 'passwords do not match';
 
   if (err)
-    return res.render('user', { user: user, error: err });
+    return res.render('user', { user: user, error: err, adding: true });
   else if (!user.name)
     err = 'name must not be empty';
   else if (!user.email)
@@ -64,87 +66,74 @@ exports.addPost = function (req, res) {
 };
 
 exports.edit = function (req, res) {
-  if (!req.user.admin && !req.user._id.equals(req.query.id))
+  if (!req.user.admin && !req.user._id.equals(req.params.id))
     return res.redirect('/');
 
-  User.findById(req.query.id, function (err, user) {
-    if (err)
-      return res.render('error', { error: err });
+  Set.find(function (err1, sets) {
+    User.findById(req.params.id, function (err2, user) {
+      if (err1 || err2 || !user)
+        return res.render('error', { error: err1 || err2 || 'user not found' });
 
-    Set.find(function (err, sets) {
-      if (err)
-        return res.render('error', { error: err });
-
-      res.render('user', { user: user, sets: sets });
+      res.render('user', { user: user, sets: sets, adding: false });
     });
   });
 };
 
 exports.editPost = function (req, res) {
-  if (!req.user.admin && !req.user._id.equals(req.body.id))
+  if (!req.user.admin && !req.user._id.equals(req.params.id))
     return res.redirect('/');
 
-  User.findById(req.body.id, function (err, user) {
-    if (err)
-      return res.render('error', { error: err });
+  Set.find(function (err1, sets) {
+    User.findById(req.params.id, function (err2, user) {
+      if (err1 || err2 || !user)
+        return res.render('error', { error: err1 || err2 || 'user not found' });
 
-    user.name = req.body.name;
-    user.email = req.body.email;
+      if (req.body.password)
+        user.password = auth.hash(req.body.password);
 
-    if (req.body.password && (req.user.admin || user.id === req.user.id)) {
-      user.password = auth.hash(req.body.password);
-    }
+      if (req.user.admin) {
+        var permissions = [];
 
-    if (req.user.admin) {
-      var permissions = [];
+        Object.keys(req.body.permissions || {}).forEach(function (id) {
+          permissions[permissions.length] = {
+            setId: id,
+            permissions: req.body.permissions[id]
+          };
+        });
 
-      Object.keys(req.body.permissions).forEach(function (id) {
-        permissions[permissions.length] = {
-          setId: id,
-          permissions: req.body.permissions[id]
-        };
+        user.name = req.body.name;
+        user.email = req.body.email;
+        user.permissions = permissions;
+        user.notes = req.body.notes;
+      }
+
+      var err = null;
+
+      if (req.body.password && req.body.password != req.body.password2)
+        err = 'passwords do not match';
+      else if (!user.name)
+        err = 'name must not be empty';
+      else if (!user.email)
+        err = 'email must not be empty';
+
+      if (err)
+        return res.render('user', { user: user, sets: sets, error: err, adding: false });
+
+      user.save(function (err) {
+        if (err)
+          return res.render('error', { error: err });
+
+        auth.refresh();
+        res.redirect(req.user.admin ? '/users' : '/');
       });
-
-      user.permissions = permissions;
-    }
-
-    if (req.body.password != req.body.password2)
-      err = 'passwords do not match';
-    else if (!user.name)
-      err = 'name must not be empty';
-    else if (!user.email)
-      err = 'email must not be empty';
-
-    if (err)
-      return res.render('user', { user: user, sets: sets, error: err });
-
-    user.save(function (err) {
-      if (err)
-        return res.render('error', { error: err });
-
-      res.redirect('/users');
-      auth.refresh();
-    });
-  });
-};
-
-exports.delete = function (req, res) {
-  User.findById(req.query.id, function (err, user) {
-    if (err)
-      return res.render('error', { error: err });
-
-    user.remove(function (err) {
-      if (err)
-        return res.render('error', { error: err });
-      res.redirect('/users');
     });
   });
 };
 
 exports.admin = function (req, res) {
-  User.findById(req.query.id, function (err, user) {
-    if (err)
-      return res.render('error', { error: err });
+  User.findById(req.params.id, function (err, user) {
+    if (err || !user)
+      return res.render('error', { error: err || 'user not found' });
 
     user.admin = req.query.set == 'true';
     user.save(function (err) {
@@ -156,3 +145,6 @@ exports.admin = function (req, res) {
     });
   });
 };
+
+exports.delete = utils.deleteItem(User, '/users');
+exports.restore = utils.restoreItem(User, '/users');

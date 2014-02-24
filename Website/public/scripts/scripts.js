@@ -1,9 +1,21 @@
-﻿$(function () {
+﻿/// <reference path="jquery.min.js" />
+/// <reference path="moment.min.js" />
+
+$(function () {
   $('[title]').tooltip();
 
   $(document).on('click', '.confirm', function () {
     return confirm($(this).data('confirm') || 'Are you sure ?');
   });
+
+  $('time').each(function () {
+    $(this).text(moment($(this).attr('pubdate')).format('DD MMM YYYY HH:mm'));
+  });
+
+  $('.button-show-deleted').on('change', function () {
+    localStorage.showDeleted = $(this).prop('checked');
+    $('#page').toggleClass('hide-deleted', !$(this).prop('checked'));
+  }).prop('checked', localStorage.showDeleted === 'true').change();
 
   $('.permission-view').on('change', function () {
     var checked = $(this).prop('checked');
@@ -13,6 +25,18 @@
     if (!checked)
       inputs.prop('checked', false);
   }).change();
+
+  $('.permission-add-remove').on('change', function () {
+    var checked = $(this).prop('checked');
+
+    $(this).parent().parent().find('.permission-edit-all, .permission-edit-lang')
+           .prop('checked', checked).prop('disabled', checked);
+  }).each(function () {
+    if ($(this).prop('checked')) {
+      $(this).parent().parent().find('.permission-edit-all, .permission-edit-lang')
+             .prop('checked', true).prop('disabled', true);
+    }
+  });
 
   $('.permission-edit-all').on('change', function () {
     var checked = $(this).prop('checked');
@@ -64,71 +88,23 @@
       }
     });
 
-    $(this).on('click', 'button', function () {
-      $(this).parent().remove();
+    $(this).on('click', '.form-items-remove', function () {
+      $(this).parents('.lang-entry').remove();
       update();
+      return false;
+    });
+
+    $(this).on('click', '.form-items-up, .form-items-down', function () {
+      var up = $(this).is('.form-items-up');
+      var entry = $(this).parents('.lang-entry');
+      var other = entry[up ? 'prev' : 'next']();
+
+      if (other.length > 0)
+        entry.remove()[up ? 'insertBefore' : 'insertAfter'](other);
+
+      return false;
     });
 
     update();
-  });
-});
-
-$(function () {
-  $('#translator').each(function () {
-    var langs = [{ id: 'en', name: 'English' }, { id: 'pl', name: 'Polish' }, { id: 'de', name: 'German' }, { id: 'fr', name: 'French' }, { id: 'es', name: 'Spanish' }, { id: 'it', name: 'Italian' }, { id: 'no', name: 'Norwegian' }]
-    var text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut ultricies arcu. Cras molestie eros id tortor rutrum, nec accumsan urna convallis. Donec aliquet consectetur blandit. Sed sodales id neque suscipit sagittis. Sed quis justo iaculis nunc suscipit auctor ut ac nulla. Integer et elit at arcu convallis adipiscing. Integer scelerisque eros laoreet pulvinar laoreet. Ut condimentum arcu non mi vehicula pretium. Maecenas quis mattis nunc, vel dictum ipsum. Duis condimentum faucibus sem, sed ultricies orci. Suspendisse vestibulum augue sit amet neque viverra aliquet. Aliquam et ligula in purus adipiscing sagittis. Nunc mollis felis vitae accumsan tempus. Sed iaculis neque dolor, ullamcorper dapibus erat mattis quis. Donec nunc sapien, dictum et odio quis, pretium ultrices lorem.';
-
-    var targetUl = $('#lang-target > ul');
-    var refUl = $('#lang-ref > ul');
-
-    langs.forEach(function (l) {
-      var html = '<li><a href="#"><img class="flag" src="/images/flags/' + l.id + '.png" />' + l.name + '</a></li>';
-      $(html).appendTo(targetUl);
-      $(html).appendTo(refUl);
-    });
-
-    var table = $('<div class="table"></div>');
-    var head = $('<div class="row head"></div>');
-    var counters = $('<div class="row head counters"></div>');
-
-    $('<div class="cell"></div>').appendTo(head);
-    $('<div class="cell"></div>').appendTo(counters);
-
-    langs.forEach(function (l) {
-      $('<div class="cell"><img class="flag" src="/images/flags/' + l.id + '.png" />' + l.name +
-        '<span class="adnotation"> (' + l.id + ')</span></div>').appendTo(head);
-      $('<div class="cell">' +
-          '<abbr title="words">WR</abbr>: <span>000000</span><br />' +
-          '<abbr title="characters (no space)">CN</abbr>: <span>000000</span><br />' +
-          '<abbr title="characters (with space)">CW</abbr>: <span>000000</span><br />' +
-        '</div>').appendTo(counters);
-    });
-
-    table.append(head);
-    table.append(counters);
-
-    $('#table-head').empty().append(table);
-
-    table = $('<div class="table"></div>');
-
-    for (var i = 0; i < 100; i++) {
-      var row = $('<div class="row"></div>');
-
-      $('<div class="cell"></div>').text('test').appendTo(row);
-
-      langs.forEach(function () {
-        var cell = $('<div class="cell"></div>').text(text).appendTo(row);
-      });
-
-      row.appendTo(table);
-    }
-
-    $('#scrollable').empty().append(table);
-
-    // ----
-
-    $('#lang-ref, #lang-target').on('click', 'a', function () {
-      //...
-    });
   });
 });

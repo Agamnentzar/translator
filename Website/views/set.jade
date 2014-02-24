@@ -1,19 +1,20 @@
 extends pageLayout
 
 mixin lang(id, name)
-	p.lang-entry.form-control-static
+	.lang-entry.form-control-static
 		input(type='hidden', name='langs[]', value=id)
+		.pull-right
+			button.form-items-up.btn.btn-xs.btn-default(data-lang=id) ▲
+			button.form-items-down.btn.btn-xs.btn-default(data-lang=id) ▼
+			button.form-items-remove.btn.btn-xs.btn-default(data-lang=id) remove
 		img.flag(src='/images/flags/' + id + '.png')
 		b=name
-		| 
-		button.form-items-remove.btn.btn-sm.btn-default(data-lang=id) remove
 
 block pageContent
 	#form-items-template(style='display: none')
 		+lang('en', 'English')
 
 	form.form-horizontal(action='', method='post', role='form')
-		input(type='hidden', name='id', value=set._id)
 		.form-group
 			h2.col-sm-offset-4.col-sm-8 Set
 		if error
@@ -36,8 +37,7 @@ block pageContent
 						- var c = cultures.get(l);
 						+lang(c.id, c.name)
 			.form-group
-				.col-sm-4
-				.col-sm-8
+				.col-sm-offset-4.col-sm-8
 					select.form-items-selector.form-control
 						option(value=0) add language
 						each c in cultures.all

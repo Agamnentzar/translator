@@ -67,12 +67,23 @@ module.exports.init = function (callback) {
 };
 
 module.exports.refresh = function () {
-  User.find(function (err, users) {
+  User.find({ deleted: { $ne: true } }, function (err, users) {
     if (err)
       return console.log(err);
 
+    if (users.length === 0) {
+      var admin = new User();
+      admin.name = 'Admin';
+      admin.email = 'admin@admin';
+      admin.password = exports.hash('admin');
+      admin.admin = true;
+      admin.save();
+    }
+
     Object.keys(sessions).forEach(function (id) {
       var s = sessions[id];
+
+      s.user = null;
 
       for (var i = 0; i < users.length; i++) {
         var u = users[i];
@@ -82,6 +93,9 @@ module.exports.refresh = function () {
           break;
         }
       }
+
+      if (s.user == null)
+        delete sessions[id];
     });
   });
 };
@@ -89,7 +103,7 @@ module.exports.refresh = function () {
 module.exports.login = function (res, email, password, callback) {
   callback = callback || function () { };
 
-  User.findOne({ email: email }, function (err, user) {
+  User.findOne({ email: email, deleted: { $ne: true } }, function (err, user) {
     if (err)
       return callback(err, null);
 
@@ -115,12 +129,17 @@ module.exports.login = function (res, email, password, callback) {
 };
 
 module.exports.logout = function (res, sessionId) {
-  sessions[sessionId].dbo.remove(function (err) {
-    if (err)
-      console.log(err);
-  });
+  var session = sessions[sessionId];
 
-  delete sessions[sessionId];
+  if (session) {
+    session.dbo.remove(function (err) {
+      if (err)
+        console.log(err);
+    });
+
+    delete sessions[sessionId];
+  }
+
   res.clearCookie('sessionId');
 };
 

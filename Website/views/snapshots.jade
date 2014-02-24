@@ -1,0 +1,64 @@
+extends pageLayout
+
+block pageContent
+	.buttons
+		.checkbox.pull-right
+			label
+				input.button-show-deleted(type='checkbox', autocomplete='off')
+				| Show deleted
+		a.btn.btn-sm.btn-primary(href='/snapshots/add') Add Snapshot Generator
+	h1 Snapshots
+	table
+		thead
+			tr
+				th Name
+				th Title
+				th Date
+				th Sets
+				th Commands
+		tbody
+			each g in generators
+				tr(class=g.deleted ? 'deleted' : '')
+					td=g.name
+					td=g.title
+					td
+						time(pubdate=g.date)=g.date
+					td
+						each s in g.sets
+							if s !== g.sets[0]
+								| , 
+							span(class=s.deleted ? 'missing' : '')=s.name
+					td.commands
+						if g.deleted
+							a.btn.btn-sm.btn-default(href='/snapshots/restore/' + g.id) Restore
+						else
+							a.btn.btn-sm.btn-primary(href='/snapshots/make/' + g.id) Make
+							a.btn.btn-sm.btn-default(href='/snapshots/edit/' + g.id) Edit
+							a.btn.btn-sm.btn-danger.confirm(href='/snapshots/delete/' + g.id) Delete
+				tr(class = g.deleted ? 'deleted inner' : 'inner')
+					th
+					th version
+					th date
+					th sets
+					th
+						a.btn.btn-xs.btn-default(href='/latest/' + g.name) latest
+						a.btn.btn-xs.btn-default(href='/live/' + g.name) live
+				each s in g.snapshots
+					tr(class = g.deleted || s.deleted ? 'deleted inner' : 'inner')
+						td
+						td=s.version
+						td
+							time(pubdate=s.date)=s.date
+						td=s.sets
+						td.commands
+							if !g.deleted
+								if s.deleted
+									a.btn.btn-xs.btn-default(href='/snapshots/restoreSnapshot/' + s.id) Restore
+								else
+									a.btn.btn-xs.btn-default(href='/get/' + s.id) JSON
+									a.btn.btn-xs.btn-danger.confirm(href='/snapshots/deleteSnapshot/' + s.id) Delete
+				tr(class=g.deleted ? 'deleted' : '')
+					td(colspan=5)
+						| &#160;
+						br
+						| &#160;

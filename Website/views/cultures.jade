@@ -2,7 +2,7 @@ extends layout
 
 block content
 	table
-		each c in cultures
+		each c in cultures.all
 			tr
 				td= c.id
 				td= c.name
