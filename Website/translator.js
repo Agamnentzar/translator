@@ -1,5 +1,3 @@
-/// <reference path="libs/_node.js" />
-
 var express = require('express')
   , http = require('http')
   , path = require('path')
