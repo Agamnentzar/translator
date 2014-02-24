@@ -6,6 +6,19 @@ var model = require('../libs/model.js')
 var User = model.User
   , Set = model.Set;
 
+function getPersmissions(req) {
+  var permissions = [];
+
+  Object.keys(req.body.permissions || {}).forEach(function (id) {
+    permissions[permissions.length] = {
+      setId: id,
+      permissions: req.body.permissions[id]
+    };
+  });
+
+  return permissions;
+}
+
 exports.index = function (req, res) {
   User.find().sort('_id').exec(function (err, users) {
     if (err)
@@ -44,6 +57,7 @@ exports.addPost = function (req, res) {
   user.email = req.body.email;
   user.notes = req.body.notes;
   user.password = auth.hash(req.body.password);
+  user.permissions = getPersmissions(req);
 
   var err = null;
 
@@ -92,18 +106,9 @@ exports.editPost = function (req, res) {
         user.password = auth.hash(req.body.password);
 
       if (req.user.admin) {
-        var permissions = [];
-
-        Object.keys(req.body.permissions || {}).forEach(function (id) {
-          permissions[permissions.length] = {
-            setId: id,
-            permissions: req.body.permissions[id]
-          };
-        });
-
         user.name = req.body.name;
         user.email = req.body.email;
-        user.permissions = permissions;
+        user.permissions = getPersmissions(req);
         user.notes = req.body.notes;
       }
 
