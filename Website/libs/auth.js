@@ -75,7 +75,7 @@ module.exports.refresh = function () {
       var admin = new User();
       admin.name = 'Admin';
       admin.email = 'admin@admin';
-      admin.password = exports.hash('admin');
+      admin.password = module.exports.hash('admin');
       admin.admin = true;
       admin.save();
     }
