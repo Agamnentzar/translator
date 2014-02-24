@@ -5,7 +5,9 @@ mixin lang(id, name)
 		input(type='hidden', name='langs[]', value=id)
 		.pull-right
 			button.form-items-up.btn.btn-xs.btn-default(data-lang=id) ▲
+			| 
 			button.form-items-down.btn.btn-xs.btn-default(data-lang=id) ▼
+			| 
 			button.form-items-remove.btn.btn-xs.btn-default(data-lang=id) remove
 		img.flag(src='/images/flags/' + id + '.png')
 		b=name

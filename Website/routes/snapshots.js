@@ -186,7 +186,7 @@ exports.makePost = function (req, res) {
     snapshot.generatorId = result.generator.id;
     snapshot.userId = req.user.id;
     snapshot.version = req.body.version;
-    snapshot.sets = result.sets.map(function (s) { return s.name; }).join(' ');
+    snapshot.sets = result.sets;
     snapshot.date = Date.now();
     snapshot.save(function (err, s) {
       if (err)
