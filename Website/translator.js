@@ -86,9 +86,12 @@ app.get('/snapshots/restoreSnapshot/:id', admin, snapshots.restoreSnapshot);
 app.get('/snapshots/make/:id', admin, snapshots.make);
 app.post('/snapshots/make/:id', admin, snapshots.makePost);
 
-app.get('/get/:id', snapshots.get);
-app.get('/live/:name', snapshots.live);
-app.get('/latest/:name', snapshots.latest);
+app.get('/id/:name/latest', snapshots.latestID);
+app.get('/json/:name/live', snapshots.liveJSON);
+app.get('/json/:name/latest', snapshots.latestJSON);
+app.get('/json/:name/:id', snapshots.getJSON);
+app.get('/vmt/:name/latest/:lang/:set', snapshots.latestVMT);
+app.get('/vmt/:name/:id/:lang/:set', snapshots.getVMT);
 
 auth.init(function (err) {
   if (err)

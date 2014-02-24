@@ -11,7 +11,7 @@ block pageContent
 	table
 		thead
 			tr
-				th Name
+				th Names
 				th Title
 				th Date
 				th Sets
@@ -19,7 +19,7 @@ block pageContent
 		tbody
 			each g in generators
 				tr(class=g.deleted ? 'deleted' : '')
-					td=g.name
+					td=g.names.join(' ')
 					td=g.title
 					td
 						time(pubdate=g.date)=g.date
@@ -39,23 +39,23 @@ block pageContent
 					th
 					th version
 					th date
-					th sets
+					th id
 					th
-						a.btn.btn-xs.btn-default(href='/latest/' + g.name) latest
-						a.btn.btn-xs.btn-default(href='/live/' + g.name) live
+						a.btn.btn-xs.btn-default(href='/json/' + g.names[0] + '/latest') latest
+						a.btn.btn-xs.btn-default(href='/json/' + g.names[0] + '/live') live
 				each s in g.snapshots
 					tr(class = g.deleted || s.deleted ? 'deleted inner' : 'inner')
 						td
 						td=s.version
 						td
 							time(pubdate=s.date)=s.date
-						td=s.sets
+						td=s.id
 						td.commands
 							if !g.deleted
 								if s.deleted
 									a.btn.btn-xs.btn-default(href='/snapshots/restoreSnapshot/' + s.id) Restore
 								else
-									a.btn.btn-xs.btn-default(href='/get/' + s.id) JSON
+									a.btn.btn-xs.btn-default(href='/json/' + g.names[0] + '/' + s.id) JSON
 									a.btn.btn-xs.btn-danger.confirm(href='/snapshots/deleteSnapshot/' + s.id) Delete
 				tr(class=g.deleted ? 'deleted' : '')
 					td(colspan=5)

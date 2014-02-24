@@ -24,7 +24,7 @@ exports.index = function (req, res) {
       generators = generators.map(function (g) {
         return {
           id: g.id,
-          name: g.name,
+          names: g.names || [],
           title: g.title,
           date: g.date,
           sets: g.sets.map(function (s) { return setMap[s]; }),
@@ -57,7 +57,7 @@ exports.add = function (req, res) {
 exports.addPost = function (req, res) {
   var generator = new SnapshotGenerator();
   generator.title = req.body.title;
-  generator.name = req.body.name;
+  generator.names = req.body.names.trim().split(/ /g).map(function(n){ return n.trim(); });
   generator.date = Date.now();
   generator.userId = req.user.id;
   generator.sets = req.body.sets;
@@ -89,7 +89,7 @@ exports.editPost = function (req, res) {
       return res.render('error', { error: err || 'icon not found' });
 
     generator.title = req.body.title;
-    generator.name = req.body.name;
+    generator.names = req.body.names.trim().split(/ /g).map(function (n) { return n.trim(); });
     generator.sets = req.body.sets;
     generator.save(function (err) {
       if (err)
@@ -106,6 +106,44 @@ exports.make = function (req, res) {
       return res.render('error', { error: err });
 
     res.render('make', { id: generator.id, name: generator.name });
+  });
+};
+
+exports.makePost = function (req, res) {
+  createSnapshot(req.params.id, function (err, result) {
+    if (err)
+      return res.render('error', { error: err });
+
+    var snapshot = new Snapshot();
+    snapshot.generatorId = result.generator.id;
+    snapshot.userId = req.user.id;
+    snapshot.version = req.body.version;
+    snapshot.sets = result.sets;
+    snapshot.date = Date.now();
+    snapshot.save(function (err, s) {
+      if (err)
+        return res.render('error', { error: err });
+
+      result.json.metadata = {
+        id: s.id,
+        name: result.generator.name,
+        title: result.generator.title,
+        version: s.version
+      };
+
+      var data = new SnapshotData();
+      data.snapshotId = s.id;
+      data.json = JSON.stringify(result.json);
+      data.save(function (err) {
+        if (err) {
+          s.remove(function () {
+            return res.render('error', { error: err });
+          });
+        }
+
+        res.redirect('/snapshots');
+      });
+    });
   });
 };
 
@@ -177,46 +215,8 @@ function createSnapshot(id, callback) {
   });
 }
 
-exports.makePost = function (req, res) {
-  createSnapshot(req.params.id, function (err, result) {
-    if (err)
-      return res.render('error', { error: err });
-
-    var snapshot = new Snapshot();
-    snapshot.generatorId = result.generator.id;
-    snapshot.userId = req.user.id;
-    snapshot.version = req.body.version;
-    snapshot.sets = result.sets;
-    snapshot.date = Date.now();
-    snapshot.save(function (err, s) {
-      if (err)
-        return res.render('error', { error: err });
-
-      result.json.metadata = {
-        id: s.id,
-        name: result.generator.name,
-        title: result.generator.title,
-        version: s.version
-      };
-
-      var data = new SnapshotData();
-      data.snapshotId = s.id;
-      data.json = JSON.stringify(result.json);
-      data.save(function (err) {
-        if (err) {
-          s.remove(function () {
-            return res.render('error', { error: err });
-          });
-        }
-
-        res.redirect('/snapshots');
-      });
-    });
-  });
-};
-
 function getLatestId(name, callback) {
-  SnapshotGenerator.findOne({ name: name }, function (err, generator) {
+  SnapshotGenerator.findOne({ names: { $in: [name] } }, function (err, generator) {
     if (err || !generator)
       return callback(err || 'name not found');
 
@@ -237,57 +237,63 @@ function findById(id, res) {
     res.charset = 'utf-8';
     res.set('Content-Type', 'application/json');
     res.send(data.json);
-
-    //switch (req.query.type) {
-    //  // TEMP: do this client-side
-    //  case 'values':
-    //    var lines = [];
-    //    var lang = req.query.lang || 'en';
-    //    var set = req.query.set;
-    //
-    //    data = JSON.parse(data.json);
-    //
-    //    if (!set)
-    //      return res.send('missing set');
-    //    if (!data[set])
-    //      return res.send('set not found');
-    //
-    //    var index = data[set][1].indexOf(lang);
-    //
-    //    if (index === -1)
-    //      return res.send('lang not found');
-    //
-    //    data = data[set];
-    //
-    //    for (var i = 0; i < data.length; i++) {
-    //      var k = (data[i][0] || '').trim();
-    //      var v = (data[i][index] || '').trim();
-    //
-    //      if (/_start$/.test(k))
-    //        v = v.replace(/^\s*([0-9]+\.) ?(.+)$/m, '$1 \\>$2\\<');
-    //
-    //      v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-    //
-    //      lines[i] = k + ' ' + v;
-    //    }
-    //
-    //    res.set('Content-Type', 'text/plain');
-    //    res.send(lines.join('\n'));
-    //    break;
-    //  // END TEMP
-    //  case 'json':
-    //  default:
-    //    res.set('Content-Type', 'application/json');
-    //    res.send(data.json);
-    //}
   });
 }
 
-exports.get = function (req, res) {
+function findVmtById(id, req, res) {
+  SnapshotData.findOne({ snapshotId: id }, function (err, data) {
+    if (err || !data)
+      return res.send('Error: ' + (err || 'data not found'));
+
+    var lines = [];
+    var lang = req.params.lang;
+    var set = req.params.set.replace(/\..*$/, '');
+
+    data = JSON.parse(data.json);
+
+    if (!set)
+      return res.send('Error: missing set');
+    if (!data[set])
+      return res.send('Error: set not found');
+
+    var index = data[set][1].indexOf(lang);
+
+    if (index === -1)
+      return res.send('Error: lang not found');
+
+    data = data[set];
+
+    for (var i = 0; i < data.length; i++) {
+      var k = (data[i][0] || '').trim();
+      var v = (data[i][index] || '').trim();
+
+      if (/_start$/.test(k))
+        v = v.replace(/^\s*([0-9]+\.) ?(.+)$/m, '$1 \\>$2\\<');
+
+      v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+
+      lines[i] = k + ' ' + v;
+    }
+
+    res.set('Content-Type', 'text/plain');
+    res.send(lines.join('\n'));
+  });
+}
+
+exports.latestID = function (req, res) {
+  getLatestId(req.params.name, function (err, id) {
+    if (err)
+      return res.send('Error: ' + err);
+
+    res.send(id);
+  });
+};
+
+exports.getJSON = function (req, res) {
   findById(req.params.id, res);
 };
 
-exports.latest = function (req, res) {
+exports.latestJSON = function (req, res) {
   getLatestId(req.params.name, function (err, id) {
     if (err)
       return res.json({ error: err });
@@ -296,7 +302,7 @@ exports.latest = function (req, res) {
   });
 };
 
-exports.live = function (req, res) {
+exports.liveJSON = function (req, res) {
   SnapshotGenerator.findOne({ name: req.params.name }, function (err, generator) {
     if (err || !generator)
       return res.json({ error: err || 'item not found' });
@@ -308,6 +314,19 @@ exports.live = function (req, res) {
       res.charset = 'utf-8';
       res.json(result.json);
     });
+  });
+};
+
+exports.getVMT = function (req, res) {
+  findVmtById(req.params.id, req, res);
+};
+
+exports.latestVMT = function (req, res) {
+  getLatestId(req.params.name, function (err, id) {
+    if (err)
+      return res.send('Error: ' + err);
+
+    findVmtById(id, req, res);
   });
 };
 

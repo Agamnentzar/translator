@@ -68,7 +68,7 @@ var entrySchema = new Schema({
 
 var snapshotGeneratorSchema = new Schema({
   userId: Schema.ObjectId,
-  name: String,
+  names: [String],
   title: String,
   sets: [Schema.ObjectId],
   date: Date,

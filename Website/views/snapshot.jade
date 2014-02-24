@@ -11,10 +11,10 @@ block pageContent
 			.col-sm-8
 				input#inputTitle.form-control(type='text', name='title', value=generator.title, autocomplete='off', required)
 		.form-group
-			label.col-sm-4.control-label(for='inputName') Name
+			label.col-sm-4.control-label(for='inputNames') Names
 			.col-sm-8
-				input#inputName.form-control(type='text', name='name', value=generator.name, pattern='\\S+', autocomplete='off', required)
-				em.help-block Name used for access by dev tools (no spaces allowed)
+				input#inputNames.form-control(type='text', name='names', value=generator.names.join(' '), autocomplete='off', required)
+				em.help-block Space separated names used for access by dev tools
 		.form-group
 			label.col-sm-4.control-label Sets
 			.col-sm-8
