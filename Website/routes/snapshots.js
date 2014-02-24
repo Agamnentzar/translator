@@ -105,7 +105,7 @@ exports.make = function (req, res) {
     if (err)
       return res.render('error', { error: err });
 
-    res.render('make', { id: generator.id, name: generator.name });
+    res.render('make', { id: generator.id, title: generator.title });
   });
 };
 
