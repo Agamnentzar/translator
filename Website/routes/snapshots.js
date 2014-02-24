@@ -147,75 +147,12 @@ exports.makePost = function (req, res) {
   });
 };
 
-function createSnapshotFromGenerator(generator, callback) {
-  Set.find({ _id: { $in: generator.sets }, deleted: { $ne: true } }, function (err1, sets) {
-    Term.find({ setId: { $in: generator.sets }, deleted: { $ne: true } }).sort('order').exec(function (err2, terms) {
-      Entry.find({ setId: { $in: generator.sets }, deleted: { $ne: true } }, function (err3, entries) {
-        if (err1 || err2 || err3)
-          return callback(err1 || err2 || err3);
-
-        var json = {}, setsMap = {}, langsMap = {};
-        var termsMap = {}, datesMap = {};
-
-        sets.forEach(function (s) {
-          var set = [['Lang'], ['LangId']];
-          var langs = { key: 0 };
-
-          setsMap[s.id] = json[s.name] = set;
-          langsMap[s.id] = langs;
-
-          s.langs.forEach(function (l, i) {
-            var c = cultures.get(l);
-            set[0][i + 1] = c.name;
-            set[1][i + 1] = c.id;
-            langs[l] = i + 1;
-          });
-        });
-
-        terms.forEach(function (t) {
-          var set = setsMap[t.setId.toString()];
-
-          if (set) {
-            var term = new Array(set[0].length);
-            set[set.length] = termsMap[t.id] = term;
-            datesMap[t.id] = new Array(set[0].length);
-
-            for (var i = 0; i < term.length; i++)
-              term[i] = '';
-          }
-        });
-
-        entries.forEach(function (e) {
-          var lang = langsMap[e.setId.toString()];
-          var term = termsMap[e.termId.toString()];
-          var date = datesMap[e.termId.toString()];
-
-          if (lang && term) {
-            var index = lang[e.lang];
-
-            if (!date[index] || date[index] < e.date) {
-              term[index] = e.value.trim();
-              date[index] = e.date;
-            }
-          }
-        });
-
-        callback(null, {
-          generator: generator,
-          sets: sets.map(function (s) { return s.name; }).join(' '),
-          json: json
-        });
-      });
-    });
-  });
-}
-
 function createSnapshot(id, callback) {
   SnapshotGenerator.findById(id, function (err, generator) {
     if (err || !generator)
       return callback(err || 'item not found');
 
-    createSnapshotFromGenerator(generator, callback);
+    model.createSnapshotFromGenerator(generator, callback);
   });
 }
 
@@ -331,16 +268,6 @@ exports.latestVMT = function (req, res) {
       return res.send('Error: ' + err);
 
     findVmtById(id, req, res);
-  });
-};
-
-exports.export = function (req, res) {
-  createSnapshotFromGenerator({ sets: [req.params.id] }, function (err, snapshot) {
-    if (err)
-      return res.json({ error: err });
-
-    res.charset = 'utf-8';
-    res.json(snapshot.json[snapshot.sets]);
   });
 };
 

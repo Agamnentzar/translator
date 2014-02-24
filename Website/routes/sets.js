@@ -138,6 +138,16 @@ exports.importPost = function (req, res) {
   });
 };
 
+exports.export = function (req, res) {
+  model.createSnapshotFromGenerator({ sets: [req.params.id] }, function (err, snapshot) {
+    if (err)
+      return res.json({ error: err });
+
+    res.charset = 'utf-8';
+    res.json(snapshot.json[snapshot.sets]);
+  });
+};
+
 exports.clone = function (req, res) {
   Set.findById(req.params.id, function (err, set) {
     if (err)

@@ -73,7 +73,7 @@ app.get('/sets/import/:id', admin, sets.import);
 app.post('/sets/add', admin, sets.addPost);
 app.post('/sets/edit/:id', admin, sets.editPost);
 app.post('/sets/import/:id', admin, sets.importPost);
-app.get('/sets/export/:id', admin, snapshots.export);
+app.get('/sets/export/:id', admin, sets.export);
 
 app.get('/snapshots', admin, snapshots.index);
 app.get('/snapshots/add', admin, snapshots.add);
