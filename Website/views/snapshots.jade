@@ -27,7 +27,7 @@ block pageContent
 						each s in g.sets
 							if s !== g.sets[0]
 								| , 
-							span(class=s.deleted ? 'missing' : '')=s.name
+							span(class=s.deleted ? 'missing' : '')=s.title
 					td.commands
 						if g.deleted
 							a.btn.btn-sm.btn-default(href='/snapshots/restore/' + g.id) Restore

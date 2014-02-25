@@ -244,7 +244,7 @@ exports.latestJSON = function (req, res) {
 };
 
 exports.liveJSON = function (req, res) {
-  SnapshotGenerator.findOne({ name: req.params.name }, function (err, generator) {
+  SnapshotGenerator.findOne({ names: { $in: [req.params.name] } }, function (err, generator) {
     if (err || !generator)
       return res.json({ error: err || 'item not found' });
 
