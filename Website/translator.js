@@ -10,14 +10,30 @@ var express = require('express')
   , auth = require('./libs/auth')
   , cultures = require('./libs/cultures');
 
+var fs = require('fs')
+  , uglifyJS = require("uglify-js");
+
 var isProduction = (process.env.NODE_ENV === 'production');
 var staticContentAge = isProduction ? (7 * 24 * 3600 * 1000) : 0;
 var admin = auth.admin;
 var app = express();
 
+var scripts = {
+  'libs': [
+    '/scripts/moment.min.js'
+  ],
+  'scripts': [
+    '/scripts/scripts.js'
+  ],
+  'translator': [
+    '/scripts/translator.js'
+  ]
+};
+
 app.set('port', process.env.PORT || 8097);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
+
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.bodyParser());
@@ -39,11 +55,34 @@ app.use(require('less-middleware')({
   once: isProduction
 }));
 app.use(express.static(__dirname + '/public', { maxAge: staticContentAge }));
-app.locals.cultures = cultures;
-app.locals.pretty = !isProduction;
 
-if (!isProduction)
+app.locals.cultures = cultures;
+app.locals.scripts = function (key) {
+  if (!scripts[key])
+    return '';
+
+  return scripts[key].map(function (src) {
+    return '<script src="' + src + '"></script>';
+  }).join('');
+};
+
+if (isProduction) {
+  fs.readdirSync(__dirname + '/public/scripts').forEach(function (file) {
+    fs.unlinkSync(__dirname + '/public/scripts/' + file);
+  });
+
+  Object.keys(scripts).forEach(function (key) {
+    var paths = scripts[key].map(function (src) { return __dirname + '/src' + src; });
+    var minified = uglifyJS.minify(paths);
+    var name = '/scripts/' + key + '-' + (Date.now() % 100000) + '.js';
+    scripts[key] = [name];
+    fs.writeFileSync(__dirname + '/public' + name, minified.code);
+  });
+} else {
+  app.locals.pretty = true;
   app.use(express.errorHandler());
+  app.use(express.static(__dirname + '/src'));
+}
 
 app.get('/', auth, routes.index);
 app.get('/cultures', auth, routes.cultures);
@@ -101,4 +140,4 @@ auth.init(function (err) {
   http.createServer(app).listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));
   });
-})
+});

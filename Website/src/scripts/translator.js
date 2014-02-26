@@ -340,10 +340,12 @@ var Api = (function () {
       var row = createRow(term);
       rows[rows.length] = row
       $('#scrollable > .table').append(row.row);
-      $('#scrollable').scrollTop($('#scrollable').height());
+      $('#scrollable').scrollTop($('#scrollable > .table').height());
 
       if (key)
         setValue(term.id, 'key', key);
+      else
+        $(row.row.find('.edit')[0]).click();
     });
   }
 
@@ -443,7 +445,7 @@ var Api = (function () {
 
       var text = cell.text();
       var area = editor.find('textarea');
-
+      
       if (cell.parent().is('.special')) {
         offset.top += 2;
         h += 2;
