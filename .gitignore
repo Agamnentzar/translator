@@ -3,4 +3,6 @@
 /packages
 bin/
 obj/
-node_modules/
+/Website/node_modules/
+/Website/public/scripts/
+/Website/public/styles/
