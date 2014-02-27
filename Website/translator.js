@@ -105,14 +105,16 @@ app.post('/users/edit/:id', auth, users.editPost);
 
 app.get('/sets', admin, sets.index);
 app.get('/sets/add', admin, sets.add);
+app.post('/sets/add', admin, sets.addPost);
 app.get('/sets/edit/:id', admin, sets.edit);
+app.post('/sets/edit/:id', admin, sets.editPost);
 app.get('/sets/delete/:id', admin, sets.delete);
 app.get('/sets/restore/:id', admin, sets.restore);
 app.get('/sets/import/:id', admin, sets.import);
-app.post('/sets/add', admin, sets.addPost);
-app.post('/sets/edit/:id', admin, sets.editPost);
 app.post('/sets/import/:id', admin, sets.importPost);
 app.get('/sets/export/:id', admin, sets.export);
+app.get('/sets/clone/:id', admin, sets.clone);
+app.post('/sets/clone/:id', admin, sets.clonePost);
 
 app.get('/snapshots', admin, snapshots.index);
 app.get('/snapshots/add', admin, snapshots.add);

@@ -41,7 +41,7 @@ exports.deleteItem = function (type, redirect) {
       });
     });
   }
-}
+};
 
 exports.restoreItem = function (type, redirect) {
   return function (req, res) {
@@ -58,4 +58,22 @@ exports.restoreItem = function (type, redirect) {
       });
     });
   }
-}
+};
+
+exports.whenAll = function (items, action, callback) {
+  if (!items || items.length === 0)
+    return callback();
+
+  var todo = items.length, error = null;
+
+  function done(err) {
+    error = err || error;
+
+    if (--todo <= 0)
+      callback(error);
+  }
+
+  items.forEach(function (item) {
+    action(item, done);
+  });
+};

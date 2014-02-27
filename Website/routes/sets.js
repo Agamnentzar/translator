@@ -64,7 +64,7 @@ exports.editPost = function (req, res) {
 exports.import = function (req, res) {
   Set.findById(req.params.id, function (err, set) {
     if (err || !set)
-      return res.render('error', { error: err || 'no set' });
+      return res.render('error', { error: err || 'item not found' });
 
     res.render('import', { set: set });
   });
@@ -150,15 +150,78 @@ exports.export = function (req, res) {
 
 exports.clone = function (req, res) {
   Set.findById(req.params.id, function (err, set) {
-    if (err)
-      return res.render('error', { error: err });
+    if (err || !set)
+      return res.render('error', { error: err || 'item not found' });
 
-    res.render('clone', { set: set });
+    res.render('clone', { sourceTitle: set.title, set: { name: set.name, langs: set.langs } });
   });
 };
 
 exports.clonePost = function (req, res) {
+  Set.findById(req.params.id, function (err, source) {
+    if (err || !source)
+      return res.render('error', { error: err || 'item not found' });
 
+    var langs = ['key'].concat(req.body.langs);
+
+    Term.find({ setId: source.id, deleted: { $ne: true } }, function (err1, terms) {
+      Entry.find({ setId: source.id, deleted: { $ne: true }, lang: { $in: langs } }, function (err2, entries) {
+        if (err1 || err2)
+          return res.render('error', { error: err1 || err2 });
+
+        console.log(terms.length + ' terms');
+        console.log(entries.length + ' entries');
+
+        var set = new Set();
+        set.name = req.body.name;
+        set.title = req.body.title;
+        set.langs = req.body.langs;
+        set.save(function (err, s) {
+          if (err)
+            return res.render('error', { error: err });
+
+          var termIds = {};
+
+          utils.whenAll(terms, function (t, done) {
+            var term = new Term();
+            term.setId = s.id;
+            term.order = t.order;
+            term.date = t.date;
+            term.userId = t.userId;
+            term.save(function (err, tt) {
+              if (err)
+                console.log('Error: ' + err);
+              else
+                termIds[t.id] = tt.id;
+              done();
+            });
+          }, function () {
+            utils.whenAll(entries, function (e, done) {
+              if (!termIds[e.termId]) {
+                console.log('Error: missing term ID');
+                return done();
+              }
+
+              var entry = new Entry();
+              entry.setId = s.id;
+              entry.termId = termIds[e.termId];
+              entry.userId = e.userId;
+              entry.lang = e.lang;
+              entry.date = e.date;
+              entry.value = e.value;
+              entry.save(function (err) {
+                if (err)
+                  console.log('Error: ' + err);
+                done();
+              });
+            }, function () {
+              res.redirect('/sets');
+            });
+          });
+        });
+      });
+    });
+  });
 };
 
 exports.delete = utils.deleteItem(Set, '/sets');

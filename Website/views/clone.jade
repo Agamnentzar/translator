@@ -1,0 +1,37 @@
+extends pageLayout
+
+block pageContent
+	form.form-horizontal(action='', method='post', role='form')
+		.form-group
+			h2.col-sm-offset-4.col-sm-8 Clone
+		if error
+			.alert.alert-danger=error
+		.form-group
+			label.col-sm-4.control-label Source
+			.col-sm-8
+				p.form-control-static=sourceTitle
+		.form-group
+			label.col-sm-4.control-label(for='inputTitle') Title
+			.col-sm-8
+				input#inputTitle.form-control(type='text', name='title', value=set.title, autocomplete='off', required)
+				em.help-block Publicly visible title
+		.form-group
+			label.col-sm-4.control-label(for='inputName') Name
+			.col-sm-8
+				input#inputName.form-control(type='text', name='name', value=set.name, pattern='\\S+', autocomplete='off', required)
+				em.help-block Name used for access by dev tools (no spaces allowed)
+		.form-group
+			label.col-sm-4.control-label Languages
+			.col-sm-8
+				each l in set.langs
+					- var c = cultures.get(l)
+					.checkbox
+						label
+							input(type='checkbox', name='langs[]', value=l, checked)
+							img.flag(src=c.flag)
+							b=c.name
+		.form-group
+			.col-sm-offset-4.col-sm-8
+				a.btn.btn-default(href='/sets') Cancel
+				| 
+				button.btn.btn-primary(type='submit') Clone

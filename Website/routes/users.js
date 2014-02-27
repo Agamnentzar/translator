@@ -43,7 +43,7 @@ exports.logout = function (req, res) {
 };
 
 exports.add = function (req, res) {
-  Set.find(function (err, sets) {
+  Set.find({ deleted: { $ne: true } }, function (err, sets) {
     if (err)
       return res.render('error', { error: err });
 
@@ -83,7 +83,7 @@ exports.edit = function (req, res) {
   if (!req.user.admin && !req.user._id.equals(req.params.id))
     return res.redirect('/');
 
-  Set.find(function (err1, sets) {
+  Set.find({ deleted: { $ne: true } }, function (err1, sets) {
     User.findById(req.params.id, function (err2, user) {
       if (err1 || err2 || !user)
         return res.render('error', { error: err1 || err2 || 'user not found' });
@@ -97,7 +97,7 @@ exports.editPost = function (req, res) {
   if (!req.user.admin && !req.user._id.equals(req.params.id))
     return res.redirect('/');
 
-  Set.find(function (err1, sets) {
+  Set.find({ deleted: { $ne: true } }, function (err1, sets) {
     User.findById(req.params.id, function (err2, user) {
       if (err1 || err2 || !user)
         return res.render('error', { error: err1 || err2 || 'user not found' });
