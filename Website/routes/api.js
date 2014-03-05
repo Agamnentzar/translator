@@ -109,6 +109,27 @@ exports.get = function (req, res) {
   });
 };
 
+exports.history = function (req, res) {
+  User.find(function (err1, users) {
+    Entry.find({ termId: req.query.termId, lang: req.query.lang }).sort('date').exec(function (err2, entries) {
+      if (err1 || err2)
+        return res.json({ error: err1 || err2 });
+
+      users = utils.map(users);
+
+      res.charset = 'utf-8';
+      res.send(entries.map(function (e) {
+        return {
+          id: e.id,
+          date: e.date,
+          user: users[e.userId].name,
+          value: e.value
+        };
+      }));
+    });
+  });
+};
+
 exports.set = function (req, res) {
   Term.findById(req.body.termId, function (err, term) {
     if (err || !term)

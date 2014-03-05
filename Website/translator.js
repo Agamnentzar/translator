@@ -91,6 +91,7 @@ app.post('/login', users.login);
 app.get('/logout', auth, users.logout);
 
 app.get('/api/get', auth, api.get);
+app.get('/api/history', auth, api.history);
 app.post('/api/set', auth, api.set);
 app.post('/api/add', auth, api.add);
 app.post('/api/move', auth, api.move);

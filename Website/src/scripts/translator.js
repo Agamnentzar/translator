@@ -441,16 +441,12 @@ var Api = (function () {
 
     $('#scrollable').on('click', '.edit', function () {
       var cell = $(this);
+      var lang = data.langIds[cell.data('lang')];
       var termId = cell.data('term');
       var offset = cell.offset();
       var w = cell.width();
       var h = cell.height();
       var editor = $('#editor-template > *').clone();
-
-      function handleScroll() {
-        editor.offset(cell.offset());
-      }
-
       var text = cell.text();
       var area = editor.find('textarea');
 
@@ -459,7 +455,13 @@ var Api = (function () {
         h += 2;
       }
 
+      function handleScroll() {
+        editor.offset(cell.offset());
+      }
+
       editor.width(w + 10).height(h + 10).toggleClass('key', cell.is('.key')).appendTo('#translator').offset(offset);
+
+      editor.find('.editor-controls').on('mousedown', false);
 
       editor.find('.button-cancel').on('mousedown', function () {
         area.val(text);
@@ -481,19 +483,50 @@ var Api = (function () {
 
       area.val(text).width(w).height(h).focus().blur(function () {
         editor.remove();
+
         $('#scrollable').off('scroll', handleScroll);
 
         var newText = area.val();
 
         if (newText !== text) {
           cell.text(newText).addClass('changing');
-          setValue(termId, data.langIds[cell.data('lang')], newText);
+          setValue(termId, lang, newText);
         }
 
         return false;
       });
 
       $('#scrollable').on('scroll', handleScroll);
+
+      $.getJSON('/api/history', { termId: termId, lang: lang }, function (history) {
+        if (history.error)
+          console.log(history.error);
+
+        if (history.length > 1) {
+          var position = history.length - 1;
+
+          function updateEnabled() {
+            editor.find('.button-undo').prop('disabled', position === 0);
+            editor.find('.button-redo').prop('disabled', position === (history.length - 1));
+          }
+
+          editor.find('.button-undo').on('mousedown', function () {
+            position--;
+            area.val(history[position].value);
+            updateEnabled();
+            return false;
+          });
+
+          editor.find('.button-redo').on('mousedown', function () {
+            position++;
+            area.val(history[position].value);
+            updateEnabled();
+            return false;
+          });
+
+          updateEnabled();
+        }
+      });
 
       return false;
     });
