@@ -82,6 +82,60 @@ body {
 			}
 		}
 	}
+
+	.changes-table {
+		width: auto;
+		margin-right: auto;
+		border-spacing: 2px;
+		border-collapse: separate;
+		table-layout: fixed;
+
+		thead > tr > th {
+			text-align: center;
+		}
+
+		tbody > tr > th {
+			color: #555;
+		}
+
+		tbody {
+			th, td {
+				background: #ddd;
+
+				&.changed {
+					background: #6dcc6d;
+				}
+			}
+		}
+
+		td, th {
+			width: 30px;
+
+			&:first-child {
+				width: 300px;
+			}
+		}
+	}
+}
+
+#popover {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+
+	> .popover {
+		position: absolute;
+		bottom: 8px;
+		top: auto;
+		right: auto;
+		left: -300px;
+		width: 600px;
+		max-width: none;
+
+		p {
+			white-space: pre-wrap;
+		}
+	}
 }
 
 #translator {

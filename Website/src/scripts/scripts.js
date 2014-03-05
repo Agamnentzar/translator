@@ -107,4 +107,14 @@ $(function () {
 
     update();
   });
+
+  $('.changes-table .changed').hover(function () {
+    var offset = $(this).offset();
+    offset.left = Math.max(300, offset.left + $(this).outerWidth() / 2);
+    $('#popover').find('h3').html('<b>' + moment($(this).data('date')).fromNow() + '</b> by <b>' + $(this).data('user') + '</b>');
+    $('#popover').find('p').text($(this).data('value'));
+    $('#popover').show().offset(offset);
+  }, function () {
+    $('#popover').hide();
+  });
 });

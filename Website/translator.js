@@ -6,6 +6,7 @@ var express = require('express')
   , users = require('./routes/users')
   , sets = require('./routes/sets')
   , snapshots = require('./routes/snapshots')
+  , changes = require('./routes/changes')
   , api = require('./routes/api')
   , tools = require('./routes/tools')
   , auth = require('./libs/auth')
@@ -130,6 +131,8 @@ app.get('/snapshots/restore/:id', admin, snapshots.restore);
 app.get('/snapshots/restoreSnapshot/:id', admin, snapshots.restoreSnapshot);
 app.get('/snapshots/make/:id', admin, snapshots.make);
 app.post('/snapshots/make/:id', admin, snapshots.makePost);
+
+app.get('/changes', admin, changes.index);
 
 app.get('/id/:name/latest', snapshots.latestID);
 app.get('/json/:name/live', snapshots.liveJSON);
