@@ -6,17 +6,17 @@ $.postJSON = function (url, data, success, error) {
 
 var Api = (function () {
   var Api = {};
-
   var activeSet = {};
   var sets = [];
   var data = {};
-  var rows = [];
   var viewAll, viewRef, viewTgt;
   var permissions = null;
   var langDropdowns = null;
   var doNotRefresh = false;
   var rowHtml = $('<div class="row"></div>');
   var cellHtml = $('<div class="cell edit"></div>');
+
+  // TODO: check duplicate keys
 
   function refreshView() {
     viewRef = data.langIds.indexOf(localStorage.ref);
@@ -37,20 +37,29 @@ var Api = (function () {
     return sets[0];
   }
 
-  function getRow(termId) {
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].termId === termId)
-        return rows[i];
+  function getTermId(key) {
+    for (var i = 0; i < data.terms.length; i++) {
+      if (data.terms[i].entries[0] === key)
+        return data.terms[i].id;
     }
 
     return null;
   }
 
-  function getCell(termId, langIndex) {
-    var row = getRow(termId);
+  function getTermIndex(termId) {
+    for (var i = 0; i < data.terms.length; i++) {
+      if (data.terms[i].id === termId)
+        return i;
+    }
 
-    if (row) {
-      var cells = row.row.find('.cell').get();
+    return -1;
+  }
+
+  function getCell(termId, langIndex) {
+    var index = getTermIndex(termId);
+
+    if (index >= 0) {
+      var cells = data.terms[index].row.find('.cell').get();
 
       for (var j = 0; j < cells.length; j++) {
         var c = $(cells[j]);
@@ -63,15 +72,6 @@ var Api = (function () {
     return $();
   }
 
-  function getTermId(key) {
-    for (var i = 0; i < data.terms.length; i++) {
-      if (data.terms[i].entries[0] === key)
-        return data.terms[i].id;
-    }
-
-    return null;
-  }
-
   function rebuildHead() {
     var ref = localStorage.ref;
     var tgt = localStorage.target;
@@ -82,18 +82,13 @@ var Api = (function () {
     var counters = $('<div class="row head counters"></div>');
 
     $('<div class="cell"></div>').appendTo(head);
-    $('<div class="cell"><button class="btn btn-sm btn-default button-cancel-moving" style="display: none;">cancel moving</button></div>').appendTo(counters);
+    $('#firstcell-template > *').clone().appendTo(counters);
 
     data.langs.forEach(function (l) {
       if (all || l.id === ref || l.id === tgt) {
         $('<div class="cell"><img class="flag" src="/images/flags/' + l.id + '.png" title="' + l.name + '" />' +
           l.name + '<span class="adnotation"> (' + l.id + ')</span></div>').appendTo(head);
-        l.counters = $('<div class="cell">' +
-            '<abbr title="words">WR</abbr>: <span class="counter-words"></span><br />' +
-            '<abbr title="characters (no space)">CN</abbr>: <span class="counter-chars"></span><br />' +
-            '<abbr title="characters (with space)">CW</abbr>: <span class="counter-allchars"></span><br />' +
-          '</div>').appendTo(counters);
-
+        l.counters = $('#counters-template > *').clone().appendTo(counters);
         l.counters.words = l.counters.find('.counter-words');
         l.counters.chars = l.counters.find('.counter-chars');
         l.counters.allchars = l.counters.find('.counter-allchars');
@@ -124,36 +119,42 @@ var Api = (function () {
     if (isSpecial(term.entries[0]))
       row.addClass('special');
 
-    return { search: search.toLowerCase(), row: row, termId: term.id };
+    term.row = row;
+    term.search = search;
   }
 
   function rebuildRows() {
-    rows = data.terms.map(function (t) {
-      return createRow(t);
-    });
+    data.terms.forEach(createRow);
 
     search();
 
     var table = $('<div class="table"></div>');
 
-    rows.forEach(function (row) {
-      table.append(row.row);
+    data.terms.forEach(function (t) {
+      table.append(t.row);
     });
 
     $('#scrollable').empty().append(table);
   }
 
-  // TODO: check duplicate keys
+  function checkDuplicates() {
+    var keys = [];
 
-  function nonZeroLength(x) {
-    return x.length > 0;
+    data.terms.forEach(function (t) {
+      if (keys.indexOf(t.entries[0]) === -1) {
+        t.row.removeClass('duplicate');
+        keys[keys.length] = t.entries[0];
+      } else {
+        t.row.addClass('duplicate');
+      }
+    });
   }
 
   function count(text) {
     text = text || '';
 
     return {
-      words: text.split(/\s+/).filter(nonZeroLength).length,
+      words: text.split(/\s+/).filter(function (x) { return x.length > 0; }).length,
       chars: text.replace(/\s/g, '').length,
       allchars: text.length
     };
@@ -241,6 +242,7 @@ var Api = (function () {
       refreshView();
       rebuildHead();
       rebuildRows();
+      checkDuplicates();
 
       doNotRefresh = true;
 
@@ -266,8 +268,8 @@ var Api = (function () {
   function search() {
     var val = $('#search').val().toLowerCase();
 
-    rows.forEach(function (r) {
-      r.row.css('display', val === '' || r.search.indexOf(val) !== -1 ? 'table-row' : 'none');
+    data.terms.forEach(function (t) {
+      t.row.css('display', val === '' || t.search.indexOf(val) !== -1 ? 'table-row' : 'none');
     });
   }
 
@@ -293,8 +295,8 @@ var Api = (function () {
       }
 
       getCell(termId, langIndex).text(value).removeClass('changing').addClass('changed');
-
       refreshCounters();
+      checkDuplicates();
     }, function () {
       console.log('set - network error');
       setTimeout(function () {
@@ -308,25 +310,14 @@ var Api = (function () {
       if (e.error)
         return console.log(e.error);
 
-      for (var i = 0; i < data.terms.length; i++) {
-        if (data.terms[i].id === termId) {
-          delete data.terms[i];
-          break;
-        }
-      }
-
-      for (var i = 0; i < rows.length; i++) {
-        if (rows[i].termId === termId) {
-          rows[i].row.remove();
-          delete rows[i];
-          break;
-        }
-      }
+      var index = getTermIndex(termId);
+      data.terms[index].row.remove();
+      data.terms.splice(index, 1);
     });
   }
 
-  function addTerm(key) {
-    $.postJSON('/api/add', { setId: data.setId }, function (term) {
+  function addTerm(key, beforeTermId) {
+    $.postJSON('/api/add', { setId: data.setId, beforeTermId: beforeTermId }, function (term) {
       if (term.error)
         return console.log(term.error);
 
@@ -336,34 +327,51 @@ var Api = (function () {
         term.entries[i] = '';
 
       prepareTerm(term);
+      createRow(term);
 
-      var row = createRow(term);
-      rows[rows.length] = row
-      $('#scrollable > .table').append(row.row);
-      $('#scrollable').scrollTop($('#scrollable > .table').height());
+      if (beforeTermId) {
+        var beforeTermIndex = getTermIndex(beforeTermId);
+        console.log(beforeTermIndex);
+        data.terms[beforeTermIndex].row.before(term.row);
+        data.terms.splice(beforeTermIndex, 0, term);
+      } else {
+        data.terms[data.terms.length] = term;
+        $('#scrollable > .table').append(term.row);
+        $('#scrollable').scrollTop($('#scrollable > .table').height());
+      }
 
       if (key)
         setValue(term.id, 'key', key);
       else
-        $(row.row.find('.edit')[0]).click();
+        $(term.row.find('.edit')[0]).click();
+    });
+  }
+
+  function moveTerm(termId, refId, place) {
+    $.postJSON('/api/move', { setId: data.setId, termId: termId, refId: refId, place: place }, function (result) {
+      if (result.error)
+        return console.log(result.error);
+
+      var termIndex = getTermIndex(termId);
+      var refIndex = getTermIndex(refId);
+      var term = data.terms[termIndex];
+      var ref = data.terms[refIndex];
+
+      if (termIndex < refIndex)
+        refIndex--;
+      if (place === 'after')
+        refIndex++;
+
+      data.terms.splice(termIndex, 1);
+      data.terms.splice(refIndex, 0, term);
+      ref.row[place](term.row.detach());
     });
   }
 
   function init() {
-    var movingTermId = null;
+    var movingTermId = null, movingRefId = null;
     var buttons1 = $('<button class="btn btn-xs btn-default button-here button-here-before">here</button>');
     var buttons2 = $('<button class="btn btn-xs btn-default button-here button-here-after">here</button>');
-    var editorHtml = $('<div class="editor"><div class="editor-controls">' +
-                         '<button class="btn btn-xs btn-danger button-cancel">cancel</button> ' +
-                         //'<button class="btn btn-xs btn-warning button-ok" disabled>undo</button> ' +
-                         //'<button class="btn btn-xs btn-warning button-ok" disabled>redo</button> ' +
-                         '<button class="btn btn-xs btn-success button-ok">ok</button> ' +
-                       '</div><div class="editor-controls-key">' +
-                         '<button class="btn btn-xs btn-danger button-delete">delete</button> ' +
-                         //'<button class="btn btn-xs btn-default button-add-below">add</button> ' +
-                         //'<button class="btn btn-xs btn-default button-move">move</button> ' +
-                         //'<button class="btn btn-xs btn-default button-copy" disabled>copy to</button> ' +
-                       '</div><textarea></textarea></div>');
 
     permissions = {};
     langDropdowns = $('#lang-ref > ul, #lang-target > ul');
@@ -374,12 +382,12 @@ var Api = (function () {
     });
 
     $('#translator').on('click', '.button-here', function () {
-      movingTermId = null;
       $('.button-cancel-moving').hide();
       buttons1.remove();
       buttons2.remove();
 
-      // TODO: move...
+      moveTerm(movingTermId, movingRefId, $(this).hasClass('button-here-before') ? 'before' : 'after');
+      movingRefId = movingTermId = null;
     });
 
     $('#translator').data('permissions').forEach(function (p) {
@@ -433,19 +441,19 @@ var Api = (function () {
 
     $('#scrollable').on('click', '.edit', function () {
       var cell = $(this);
+      var termId = cell.data('term');
       var offset = cell.offset();
       var w = cell.width();
       var h = cell.height();
-      var editor = editorHtml.clone();
+      var editor = $('#editor-template > *').clone();
 
       function handleScroll() {
-        var offset = cell.offset();
-        editor.offset(offset);
+        editor.offset(cell.offset());
       }
 
       var text = cell.text();
       var area = editor.find('textarea');
-      
+
       if (cell.parent().is('.special')) {
         offset.top += 2;
         h += 2;
@@ -458,18 +466,17 @@ var Api = (function () {
       });
 
       editor.find('.button-move').on('mousedown', function () {
-        movingTermId = cell.data('term');
+        movingTermId = termId;
         $('.button-cancel-moving').show();
       });
 
-      editor.find('.button-add-below').on('mousedown', function () {
-        // TODO: ...
+      editor.find('.button-add-above').on('mousedown', function () {
+        addTerm(null, termId);
       });
 
       editor.find('.button-delete').on('mousedown', function () {
-        if (confirm('Are you sure you want to delete this entry ?')) {
-          deleteTerm(cell.data('term'));
-        }
+        if (confirm('Are you sure you want to delete this entry ?'))
+          deleteTerm(termId);
       });
 
       area.val(text).width(w).height(h).focus().blur(function () {
@@ -480,7 +487,7 @@ var Api = (function () {
 
         if (newText !== text) {
           cell.text(newText).addClass('changing');
-          setValue(cell.data('term'), data.langIds[cell.data('lang')], newText);
+          setValue(termId, data.langIds[cell.data('lang')], newText);
         }
 
         return false;
@@ -502,15 +509,16 @@ var Api = (function () {
         buttons1.appendTo('#translator').offset(offset);
         offset.top += $(this).height() + 10;
         buttons2.appendTo('#translator').offset(offset);
+        movingRefId = $(this).data('term');
       }
-    }).on('mouseout', '.key', function () {
-      //$(this).find('.buttons').remove();
     });
 
     initSet(getSet());
   };
 
-  // Api.switchSet = function (set) ...
+  // Api.switchSet = function (set) {
+  // 
+  // };
 
   Api.data = function () {
     return data;
@@ -531,19 +539,27 @@ var Api = (function () {
     if (termId === null)
       return console.log('key not found');
 
-    return setValue(termId, lang, value);
+    setValue(termId, lang, value);
   };
 
-  //Api.move = function (key, refKey, place /*['before'|'after']*/) {
-  //  if (key === refKey)
-  //    return console.log('keys cannot be the same');
-  //
-  //  //...
-  //};
+  Api.move = function (key, refKey, place) {
+    var termId = getTermId(key);
+    var refId = getTermId(refKey);
 
-  Api.add = function (key/*, beforeKey [optional]*/) {
-    // TODO: handle beforeKey
-    addTerm(key);
+    if (key === refKey)
+      return console.log('keys cannot be the same');
+    if (termId === null)
+      return console.log('key not found');
+    if (refId === null)
+      return console.log('refKey not found');
+    if (place !== 'before' && place !== 'after')
+      return console.log('invalid place, must be \'before\' or \'after\'');
+
+    moveTerm(termId, refId, place);
+  };
+
+  Api.add = function (key, beforeKey) {
+    addTerm(key, getTermId(beforeKey));
   };
 
   Api.delete = function (key) {

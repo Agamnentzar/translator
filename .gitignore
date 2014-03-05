@@ -6,3 +6,4 @@ obj/
 /Website/node_modules/
 /Website/public/scripts/
 /Website/public/styles/
+/Website/src/styles/*.css

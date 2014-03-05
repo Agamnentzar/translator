@@ -1,12 +1,51 @@
 ﻿/// <reference path="../libs/_node.js" />
 
 var model = require('../libs/model.js')
+  , utils = require('../libs/utils.js')
   , cultures = require('../libs/cultures.js');
 
 var User = model.User
   , Set = model.Set
   , Term = model.Term
   , Entry = model.Entry;
+
+function move(setId, termId, refId, place, callback) {
+  Term.find({ setId: setId, deleted: { $ne: true } }).sort('order').exec(function (err, terms) {
+    if (err)
+      return callback(err);
+
+    var termIndex = -1, refIndex = -1;
+
+    for (var i = 0; i < terms.length; i++) {
+      if (termIndex < 0 && terms[i].id === termId)
+        termIndex = i;
+      else if (refIndex < 0 && terms[i].id === refId)
+        refIndex = i;
+    }
+
+    var term = terms[termIndex];
+
+    if (termIndex < 0)
+      return res.json({ error: 'term not found' });
+    if (refIndex < 0)
+      return res.json({ error: 'ref not found' });
+
+    if (termIndex < refIndex)
+      refIndex--;
+    if (place === 'after')
+      refIndex++;
+
+    terms.splice(termIndex, 1);
+    terms.splice(refIndex, 0, term);
+
+    for (var i = 0; i < terms.length; i++)
+      terms[i].order = i;
+
+    utils.whenAll(terms, function (t, done) {
+      t.save(done);
+    }, callback);
+  });
+}
 
 exports.get = function (req, res) {
   User.find(function (err, users) {
@@ -118,21 +157,36 @@ exports.add = function (req, res) {
     Term.findOne({ setId: set.id, deleted: { $ne: true } }).sort('-order').exec(function (err, last) {
       var term = new Term();
       term.setId = set.id;
-      term.order = last.order + 1;
+      term.order = last ? last.order + 1 : 0;
       term.date = Date.now();
       term.userId = req.user.id;
       term.save(function (err, t) {
         if (err || !t)
           return res.json({ error: err || 'term missing' });
 
-        res.json({ id: t.id });
+        if (req.body.beforeTermId) {
+          move(set.id, t.id, req.body.beforeTermId, 'before', function (err) {
+            if (err)
+              return res.json({ error: err });
+            res.json({ id: t.id });
+          });
+        } else {
+          res.json({ id: t.id });
+        }
       });
     });
   });
 };
 
-exports.addAfter = function (req, res) {
-  // TODO: ...
+exports.move = function (req, res) {
+  if (!req.user.can('add', req.body.setId))
+    return res.json({ error: 'access denied' });
+
+  move(req.body.setId, req.body.termId, req.body.refId, req.body.place, function (err) {
+    if (err)
+      return res.json({ error: err });
+    res.json({ success: true });
+  });
 };
 
 exports.delete = function (req, res) {

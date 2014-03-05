@@ -7,6 +7,7 @@ var express = require('express')
   , sets = require('./routes/sets')
   , snapshots = require('./routes/snapshots')
   , api = require('./routes/api')
+  , tools = require('./routes/tools')
   , auth = require('./libs/auth')
   , cultures = require('./libs/cultures');
 
@@ -92,6 +93,7 @@ app.get('/logout', auth, users.logout);
 app.get('/api/get', auth, api.get);
 app.post('/api/set', auth, api.set);
 app.post('/api/add', auth, api.add);
+app.post('/api/move', auth, api.move);
 app.post('/api/delete', auth, api.delete);
 
 app.get('/users', admin, users.index);
@@ -134,6 +136,9 @@ app.get('/json/:name/latest', snapshots.latestJSON);
 app.get('/json/:name/:id', snapshots.getJSON);
 app.get('/vmt/:name/latest/:lang/:set', snapshots.latestVMT);
 app.get('/vmt/:name/:id/:lang/:set', snapshots.getVMT);
+
+app.get('/qr', tools.qr);
+app.post('/qr', tools.qrPost);
 
 auth.init(function (err) {
   if (err)

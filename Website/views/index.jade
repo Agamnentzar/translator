@@ -44,5 +44,39 @@ block content
 				div
 					div
 						div LOADING...
+		
+		#templates(style='display:none')
+			#editor-template
+				.editor
+					.editor-controls
+						button.btn.btn-xs.btn-danger.button-cancel cancel
+						//button.btn.btn-xs.btn-warning.button-undo(disabled) undo
+						//button.btn.btn-xs.btn-warning.button-redo(disabled) redo
+						button.btn.btn-xs.btn-success.button-ok ok
+					.editor-controls-key
+						button.btn.btn-xs.btn-danger.button-delete delete
+						button.btn.btn-xs.btn-default.button-add-above add
+						button.btn.btn-xs.btn-default.button-move move
+						//button.btn.btn-xs.btn-default.button-copy copy to
+					textarea
+
+			#firstcell-template
+				.cell
+					button.btn.btn-sm.btn-default.button-cancel-moving(style='display:none') cancel moving
+
+			#counters-template
+				.cell
+					abbr(title='words') WR
+					| : 
+					span.counter-words
+					br
+					abbr(title='characters (no space)') CN
+					| : 
+					span.counter-chars
+					br
+					abbr(title='characters (with space)') CW
+					| : 
+					span.counter-allchars
+					br
 	
 	!=scripts('translator')
