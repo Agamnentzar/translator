@@ -464,7 +464,7 @@ var Api = (function () {
       editor.find('.editor-controls').on('mousedown', false);
 
       editor.find('.button-cancel').on('mousedown', function () {
-        area.val(text);
+        area.val(text).blur();
       });
 
       editor.find('.button-move').on('mousedown', function () {
@@ -479,6 +479,10 @@ var Api = (function () {
       editor.find('.button-delete').on('mousedown', function () {
         if (confirm('Are you sure you want to delete this entry ?'))
           deleteTerm(termId);
+      });
+
+      editor.find('.button-ok').on('mousedown', function () {
+        area.blur();
       });
 
       area.val(text).width(w).height(h).focus().blur(function () {
