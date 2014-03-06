@@ -23,7 +23,7 @@ module.exports = function (app, options) {
       var paths = scripts[key].map(function (src) { return options.source + src; });
       var minified = uglifyJS.minify(paths);
       var name = '/' + key + '-' + (Date.now() % 100000) + '.js';
-      scripts[key] = ['/scripts' + name];
+      scripts[key] = '<script src="/scripts' + name + '"></script>';
       fs.writeFileSync(options.output + name, minified.code);
     });
   }
