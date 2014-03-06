@@ -108,11 +108,12 @@ $(function () {
     update();
   });
 
-  $('.changes-table .changed').hover(function () {
+  $('.changes-table .pop').hover(function () {
+    var d = $(this).data();
     var offset = $(this).offset();
     offset.left = Math.max(300, offset.left + $(this).outerWidth() / 2);
-    $('#popover').find('h3').html('<b>' + moment($(this).data('date')).fromNow() + '</b> by <b>' + $(this).data('user') + '</b>');
-    $('#popover').find('p').text($(this).data('value'));
+    $('#popover').find('h3').html(d.type + ' <b>' + moment(d.date).fromNow() + '</b> by <b>' + d.user + '</b>');
+    $('#popover').find('p').text(d.value);
     $('#popover').show().offset(offset);
   }, function () {
     $('#popover').hide();

@@ -17,18 +17,19 @@ block pageContent
 								img(src=c.flag, title=c.name)
 				tbody
 					each t in s.terms
-						tr
-							each e, i in t
-								if i === 0
-									if e && e.changed
-										th.changed(data-user=e.user, data-date=e.date.toString(), data-value=e.value)=e.value
-									else
-										th=e.value
-								else 
-									if e && e.changed
-										td.changed(data-user=e.user, data-date=e.date.toString(), data-value=e.value)
-									else
-										td
+						if t.entries
+							tr
+								each e, i in t.entries
+									if i === 0
+										if e && e.type
+											th(class=e.type + ' pop', data-type=e.type, data-user=e.user, data-date=e.date.toString(), data-value=e.value)=e.value
+										else
+											th=e.value
+									else 
+										if e && e.type
+											td(class=e.type + ' pop', data-type=e.type, data-user=e.user, data-date=e.date.toString(), data-value=e.value)
+										else
+											td
 
 	#popover(style='display:none')
 		.popover.top(style='display:block')
