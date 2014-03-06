@@ -10,27 +10,13 @@ var express = require('express')
   , api = require('./routes/api')
   , tools = require('./routes/tools')
   , auth = require('./libs/auth')
-  , cultures = require('./libs/cultures');
+  , cultures = require('./libs/cultures')
+  , scripty = require('./libs/scripty');
 
-var fs = require('fs')
-  , uglifyJS = require("uglify-js");
-
-var isProduction = (process.env.NODE_ENV === 'production');
+var isProduction = process.env.NODE_ENV === 'production';
 var staticContentAge = isProduction ? (7 * 24 * 3600 * 1000) : 0;
 var admin = auth.admin;
 var app = express();
-
-var scripts = {
-  'libs': [
-    '/scripts/moment.min.js'
-  ],
-  'scripts': [
-    '/scripts/scripts.js'
-  ],
-  'translator': [
-    '/scripts/translator.js'
-  ]
-};
 
 app.set('port', process.env.PORT || 8097);
 app.set('views', __dirname + '/views');
@@ -58,33 +44,20 @@ app.use(require('less-middleware')({
 }));
 app.use(express.static(__dirname + '/public', { maxAge: staticContentAge }));
 
-app.locals.cultures = cultures;
-app.locals.scripts = function (key) {
-  if (!scripts[key])
-    return '';
+scripty(app, {
+  debug: !isProduction,
+  source: __dirname + '/src',
+  output: __dirname + '/public/scripts',
+  scripts: __dirname + '/scripts.json'
+});
 
-  return scripts[key].map(function (src) {
-    return '<script src="' + src + '"></script>';
-  }).join('');
-};
-
-if (isProduction) {
-  fs.readdirSync(__dirname + '/public/scripts').forEach(function (file) {
-    fs.unlinkSync(__dirname + '/public/scripts/' + file);
-  });
-
-  Object.keys(scripts).forEach(function (key) {
-    var paths = scripts[key].map(function (src) { return __dirname + '/src' + src; });
-    var minified = uglifyJS.minify(paths);
-    var name = '/scripts/' + key + '-' + (Date.now() % 100000) + '.js';
-    scripts[key] = [name];
-    fs.writeFileSync(__dirname + '/public' + name, minified.code);
-  });
-} else {
+if (!isProduction) {
   app.locals.pretty = true;
   app.use(express.errorHandler());
   app.use(express.static(__dirname + '/src'));
 }
+
+app.locals.cultures = cultures;
 
 app.get('/', auth, routes.index);
 app.get('/cultures', auth, routes.cultures);
