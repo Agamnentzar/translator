@@ -49,7 +49,7 @@ block pageContent
 						td=s.version
 						td
 							time(pubdate=s.date)=s.date
-						td=s.id
+						td=s.id.substr(-4)
 						td.commands
 							if !g.deleted
 								if s.deleted

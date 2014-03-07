@@ -16,8 +16,6 @@ var Api = (function () {
   var rowHtml = $('<div class="row"></div>');
   var cellHtml = $('<div class="cell edit"></div>');
 
-  // TODO: check duplicate keys
-
   function refreshView() {
     viewRef = data.langIds.indexOf(localStorage.ref);
     viewTgt = data.langIds.indexOf(localStorage.target);
