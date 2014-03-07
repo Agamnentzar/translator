@@ -109,7 +109,7 @@ var Api = (function () {
 
     term.entries.forEach(function (e, i) {
       if (all || i === 0 || i === ref || i === tgt) {
-        search += e + ' ';
+        search += e.toLowerCase() + ' ';
         cellHtml.clone().data({ term: term.id, lang: i })
                 .toggleClass('key', i === 0).toggleClass('edit', p[i])
                 .text(e).appendTo(row);

@@ -34,13 +34,14 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(app.router);
-app.use(require('less-middleware')({
-  src: __dirname + "/src",
+app.use(less(__dirname + "/src", {
   dest: __dirname + "/public",
-  optimization: isProduction ? 2 : 0,
-  compress: isProduction,
   debug: !isProduction,
   once: isProduction
+}, {
+  optimization: isProduction ? 2 : 0
+}, {
+  compress: isProduction
 }));
 app.use(express.static(__dirname + '/public', { maxAge: staticContentAge }));
 
