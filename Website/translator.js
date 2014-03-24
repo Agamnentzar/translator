@@ -1,7 +1,7 @@
 var express = require('express')
   , http = require('http')
   , path = require('path')
-  , less = require('less-middleware')
+  , ag = require('ag-static-content')
   , routes = require('./routes')
   , users = require('./routes/users')
   , sets = require('./routes/sets')
@@ -10,11 +10,9 @@ var express = require('express')
   , api = require('./routes/api')
   , tools = require('./routes/tools')
   , auth = require('./libs/auth')
-  , cultures = require('./libs/cultures')
-  , scripty = require('./libs/scripty');
+  , cultures = require('./libs/cultures');
 
 var isProduction = process.env.NODE_ENV === 'production';
-var staticContentAge = isProduction ? (7 * 24 * 3600 * 1000) : 0;
 var admin = auth.admin;
 var app = express();
 
@@ -34,29 +32,14 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(app.router);
-app.use(less(__dirname + "/src", {
-  dest: __dirname + "/public",
-  debug: !isProduction,
-  once: isProduction
-}, {
-  optimization: isProduction ? 2 : 0
-}, {
-  compress: isProduction
-}));
-app.use(express.static(__dirname + '/public', { maxAge: staticContentAge }));
+app.use(express.compress());
 
-scripty(app, {
+ag(app, express, {
   debug: !isProduction,
   source: __dirname + '/src',
-  output: __dirname + '/public/scripts',
+  output: __dirname + '/public',
   scripts: __dirname + '/scripts.json'
 });
-
-if (!isProduction) {
-  app.locals.pretty = true;
-  app.use(express.errorHandler());
-  app.use(express.static(__dirname + '/src'));
-}
 
 app.locals.cultures = cultures;
 

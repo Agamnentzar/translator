@@ -546,10 +546,19 @@ var Api = (function () {
         buttons2.appendTo('#translator').offset(offset);
         movingRefId = $(this).data('term');
       }
+
+      toggleActiveLang($(this).data('lang'), true);
+    }).on('mouseout', '.cell', function () {
+      toggleActiveLang($(this).data('lang'), false);
     });
 
     initSet(getSet());
   };
+
+  function toggleActiveLang(lang, toggle) {
+    if (lang !== undefined)
+      $('#scrollable-head').find('.head .cell:nth-child(' + (lang + 1) + ')').toggleClass('active', toggle);
+  }
 
   // Api.switchSet = function (set) {
   // 
