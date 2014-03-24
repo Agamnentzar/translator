@@ -21,6 +21,8 @@ body {
 #user {
 	float: right;
 	text-align: right;
+	position: relative;
+	z-index: 3;
 
 	strong {
 		margin-right: 10px;
@@ -163,8 +165,11 @@ body {
 }
 
 #controls {
+	background: #eee;
 	padding: 5px;
 	white-space: nowrap;
+	position: relative;
+	z-index: 2;
 
 	input {
 		width: 200px;
@@ -256,12 +261,18 @@ body {
 
 #scrollable-head {
 	overflow-y: scroll;
+	position: relative;
+	z-index: 1;
+
+	&.shadow {
+		box-shadow: 0 0 20px #444;
+	}
 }
 
 #scrollable {
 	position: absolute;
 	left: 0;
-	top: 126px;
+	top: 129px;
 	right: 0;
 	bottom: 0;
 	overflow-x: hidden;

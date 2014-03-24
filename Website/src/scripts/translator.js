@@ -269,6 +269,8 @@ var Api = (function () {
     data.terms.forEach(function (t) {
       t.row.css('display', val === '' || t.search.indexOf(val) !== -1 ? 'table-row' : 'none');
     });
+
+    updateShadow();
   }
 
   function setValue(termId, lang, value) {
@@ -533,6 +535,8 @@ var Api = (function () {
       return false;
     });
 
+    $('#scrollable').on('scroll', updateShadow);
+
     $('#translator').on('mouseover', '.cell', function () {
       buttons1.remove();
       buttons2.remove();
@@ -552,12 +556,18 @@ var Api = (function () {
       toggleActiveLang($(this).data('lang'), false);
     });
 
+    $(window).resize(updateShadow);
+
     initSet(getSet());
   };
 
   function toggleActiveLang(lang, toggle) {
     if (lang !== undefined)
       $('#scrollable-head').find('.head .cell:nth-child(' + (lang + 1) + ')').toggleClass('active', toggle);
+  }
+
+  function updateShadow() {
+    $('#scrollable-head').toggleClass('shadow', $('#scrollable').scrollTop() !== 0);
   }
 
   // Api.switchSet = function (set) {
