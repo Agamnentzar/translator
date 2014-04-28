@@ -94,7 +94,7 @@ var Api = (function () {
     });
 
     table.append(head).append(counters);
-    $('#scrollable-head').empty().append(table).find('[title]').tooltip();
+    $('#scrollable-head').empty().append(table).find('[title]').tooltip({ placement: 'left' });
 
     refreshCounters();
   }
