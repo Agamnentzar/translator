@@ -93,6 +93,11 @@ setSchema.methods.export = function (callback) {
         }
       });
 
+      for (var i = json.length - 1; i >= 0; i--) {
+        if (!json[i][0])
+          json.splice(i, 1);
+      }
+
       callback(null, json);
     });
   });
