@@ -19,7 +19,7 @@ function setupSet(set, src) {
 }
 
 exports.index = function (req, res) {
-  Set.find().exec(function (err, sets) {
+  Set.find().sort('title').exec(function (err, sets) {
     if (err)
       return res.render('error', { error: err });
 
