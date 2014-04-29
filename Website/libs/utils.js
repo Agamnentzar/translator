@@ -25,6 +25,18 @@ exports.distribute = function (parents, children, idField, childrenField) {
   });
 };
 
+function handleSave(res, redirect) {
+  return function (err, item) {
+    if (err)
+      return res.render('error', { error: err });
+
+    if (typeof (redirect) == 'function')
+      res.redirect(redirect(item));
+    else
+      res.redirect(redirect || '/');
+  };
+}
+
 exports.deleteItem = function (type, redirect) {
   return function (req, res) {
     type.findById(req.params.id, function (err, item) {
@@ -33,12 +45,7 @@ exports.deleteItem = function (type, redirect) {
 
       item.deleted = true;
       item.deletedDate = Date.now();
-      item.save(function (err) {
-        if (err)
-          return res.render('error', { error: err });
-
-        res.redirect(redirect || '/');
-      });
+      item.save(handleSave(res, redirect));
     });
   }
 };
@@ -50,12 +57,7 @@ exports.restoreItem = function (type, redirect) {
         return res.render('error', { error: err || 'item not found' });
 
       item.deleted = false;
-      item.save(function (err) {
-        if (err)
-          return res.render('error', { error: err });
-
-        res.redirect(redirect || '/');
-      });
+      item.save(handleSave(res, redirect));
     });
   }
 };

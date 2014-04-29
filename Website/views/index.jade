@@ -6,7 +6,6 @@ block content
 			#dropdown-set.btn-group
 				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
 					span.value
-					| 
 					span.caret
 				ul.dropdown-menu(role='menu')
 					each s in sets
@@ -18,18 +17,21 @@ block content
 			#lang-ref.btn-group
 				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
 					span.value
-					| 
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  Target: 
 			#lang-target.btn-group
 				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
 					span.value
-					| 
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  
 			button.button-add.btn.btn-sm.btn-default Add
+			button.button-changes.btn.btn-sm.btn-default
+				| Changes 
+				span.caret
+			|  Version: 
+			b.version
 
 		#user
 			strong=loggedInUser.name

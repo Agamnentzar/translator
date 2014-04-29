@@ -75,7 +75,7 @@ var Api = (function () {
     var tgt = localStorage.target;
     var all = ref === 'none' && tgt === 'none';
 
-    var table = $('<div class="table"></div>');
+    var table = $('<div class="main-table"></div>');
     var head = $('<div class="row head"></div>');
     var counters = $('<div class="row head counters"></div>');
 
@@ -126,7 +126,7 @@ var Api = (function () {
 
     search();
 
-    var table = $('<div class="table"></div>');
+    var table = $('<div class="main-table"></div>');
 
     data.terms.forEach(function (t) {
       table.append(t.row);
@@ -256,6 +256,7 @@ var Api = (function () {
 
       doNotRefresh = false;
 
+      $('.version').text(data.version);
       $('#controls').css('visibility', 'visible');
       $('#loading').hide();
       $('#scrollable-head').show();
@@ -336,8 +337,8 @@ var Api = (function () {
         data.terms.splice(beforeTermIndex, 0, term);
       } else {
         data.terms[data.terms.length] = term;
-        $('#scrollable > .table').append(term.row);
-        $('#scrollable').scrollTop($('#scrollable > .table').height());
+        $('#scrollable > .main-table').append(term.row);
+        $('#scrollable').scrollTop($('#scrollable > .main-table').height());
       }
 
       if (key)
@@ -551,9 +552,26 @@ var Api = (function () {
         movingRefId = $(this).data('term');
       }
 
-      toggleActiveLang($(this).data('lang'), true);
+      toggleActiveLang($(this).index(), true);
     }).on('mouseout', '.cell', function () {
-      toggleActiveLang($(this).data('lang'), false);
+      toggleActiveLang($(this).index(), false);
+    });
+
+    $(document).on('change', '.changes-area', function () {
+      data.changes = $(this).val();
+
+      $.postJSON('/api/changes', { setId: data.setId, changes: data.changes }, function (result) {
+        if (result.error)
+          return console.log(result.error);
+      });
+    });
+
+    $('.button-changes').popover({
+      placement: 'bottom',
+      html: true,
+      content: function () {
+        return $('<div/>').append($('<textarea class="changes-area form-control" rows="5" />').text(data.changes)).html();
+      }
     });
 
     $(window).resize(updateShadow);

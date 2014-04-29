@@ -10,6 +10,10 @@ body {
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+hr {
+	border-color: #ddd;
+}
+
 .flag {
 	position: relative;
 	top: -1px;
@@ -172,9 +176,25 @@ body {
 	z-index: 2;
 
 	input {
-		width: 200px;
+		width: 150px;
 		display: inline-block;
 	}
+
+	.value {
+		max-width: 100px;
+		-ms-text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		display: block;
+		float: left;
+		margin-right: 5px;
+	}
+}
+
+.changes-area {
+	width: 260px;
+	margin: -9px -14px;
 }
 
 .deleted, .missing {
@@ -185,7 +205,7 @@ body {
 	display: none;
 }
 
-.table {
+.main-table {
 	display: table;
 	margin: 0;
 	border-collapse: collapse;

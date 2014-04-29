@@ -1,0 +1,53 @@
+extends pageLayout
+
+block pageContent
+	.buttons
+		.checkbox.pull-right
+			label
+				input.button-show-deleted(type='checkbox', autocomplete='off')
+				| Show deleted
+		a.btn.btn-sm.btn-default(href='/sets') Back
+		| 
+		a.btn.btn-sm.btn-primary(href='/sets/new/' + set.id) New Version
+	h1 Versions
+	table
+		thead
+			tr
+				th Name
+				th Devices
+				th Title
+				th Version
+				th
+				th
+		tbody
+			tr
+				td=set.name
+				td=set.devices.join(' ')
+				td=set.title
+				td=set.version
+				td
+				td
+					a.btn.btn-sm.btn-default(href='/id/' + set.devices[0] + '/' + set.name + '/latest') latest ID
+					a.btn.btn-sm.btn-default(href='/json/' + set.devices[0] + '/' + set.name + '/latest') latest
+					a.btn.btn-sm.btn-default(href='/json/' + set.devices[0] + '/' + set.name + '/live') live
+			tr
+				th
+				th version
+				th date
+				th id
+				th changes
+				th
+			each s in snapshots
+				tr(class = s.deleted ? 'deleted inner' : 'inner')
+					td
+					td=s.version
+					td
+						time(pubdate=s.date)=s.date
+					td=s.id.substr(-4)
+					td=s.changes
+					td.commands
+						if s.deleted
+							a.btn.btn-xs.btn-default(href='/sets/version/restore/' + s.id) Restore
+						else
+							a.btn.btn-xs.btn-default(href='/json/' + set.devices[0] + '/' + set.name + '/' + s.id) JSON
+							a.btn.btn-xs.btn-danger.confirm(href='/sets/version/delete/' + s.id) Delete

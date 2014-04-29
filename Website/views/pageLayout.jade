@@ -8,7 +8,7 @@ block content
 			
 		ul.nav.nav-pills
 			if loggedInUser.admin
-				each m in [['/', 'Translator'], ['/users', 'Users'], ['/sets', 'Sets'], ['/snapshots', 'Snapshots'], ['/changes', 'Changes']]
+				each m in [['/', 'Translator'], ['/users', 'Users'], ['/sets', 'Sets'], ['/changes', 'Changes']]
 					li(class=m[0] === currentLocation ? 'active' : '')
 						a(href=m[0])=m[1]
 

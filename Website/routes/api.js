@@ -101,6 +101,8 @@ exports.get = function (req, res) {
               return { id: u.id, name: u.name };
             }),
             langs: set.langs.map(cultures.get),
+            version: set.version,
+            changes: set.changes,
             terms: ts
           });
         });
@@ -226,5 +228,26 @@ exports.delete = function (req, res) {
 
       res.json({ success: true });
     });
+  });
+};
+
+exports.changes = function (req, res) {
+  var setId = req.body.setId;
+  var changes = req.body.changes;
+
+  if (!req.user.can('any', setId))
+    return res.json({ error: 'access denied' });
+
+  Set.findById(setId, function (err, set) {
+    if (err)
+      return res.json({ error: err });
+
+    set.changes = changes;
+    set.save(function (err) {
+      if (err)
+        res.json({ error: err });
+      else
+        res.json({ success: true });
+    })
   });
 };

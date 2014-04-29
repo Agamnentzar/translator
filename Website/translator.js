@@ -54,6 +54,7 @@ app.post('/api/set', auth, api.set);
 app.post('/api/add', auth, api.add);
 app.post('/api/move', auth, api.move);
 app.post('/api/delete', auth, api.delete);
+app.post('/api/changes', auth, api.changes);
 
 app.get('/users', admin, users.index);
 app.get('/users/add', admin, users.add);
@@ -67,36 +68,29 @@ app.post('/users/edit/:id', auth, users.editPost);
 app.get('/sets', admin, sets.index);
 app.get('/sets/add', admin, sets.add);
 app.post('/sets/add', admin, sets.addPost);
+app.get('/sets/import', admin, sets.import);
+app.post('/sets/import', admin, sets.importPost);
 app.get('/sets/edit/:id', admin, sets.edit);
 app.post('/sets/edit/:id', admin, sets.editPost);
 app.get('/sets/delete/:id', admin, sets.delete);
 app.get('/sets/restore/:id', admin, sets.restore);
-app.get('/sets/import/:id', admin, sets.import);
-app.post('/sets/import/:id', admin, sets.importPost);
 app.get('/sets/export/:id', admin, sets.export);
 app.get('/sets/clone/:id', admin, sets.clone);
 app.post('/sets/clone/:id', admin, sets.clonePost);
-
-app.get('/snapshots', admin, snapshots.index);
-app.get('/snapshots/add', admin, snapshots.add);
-app.post('/snapshots/add', admin, snapshots.addPost);
-app.get('/snapshots/edit/:id', admin, snapshots.edit);
-app.post('/snapshots/edit/:id', admin, snapshots.editPost);
-app.get('/snapshots/delete/:id', admin, snapshots.delete);
-app.get('/snapshots/deleteSnapshot/:id', admin, snapshots.deleteSnapshot);
-app.get('/snapshots/restore/:id', admin, snapshots.restore);
-app.get('/snapshots/restoreSnapshot/:id', admin, snapshots.restoreSnapshot);
-app.get('/snapshots/make/:id', admin, snapshots.make);
-app.post('/snapshots/make/:id', admin, snapshots.makePost);
+app.get('/sets/versions/:id', admin, sets.versions);
+app.get('/sets/new/:id', admin, sets.newVersion);
+app.post('/sets/new/:id', admin, sets.newVersionPost);
+app.get('/sets/version/delete/:id', admin, sets.deleteSnapshot);
+app.get('/sets/version/restore/:id', admin, sets.restoreSnapshot);
 
 app.get('/changes', admin, changes.index);
 
-app.get('/id/:name/latest', snapshots.latestID);
-app.get('/json/:name/live', snapshots.liveJSON);
-app.get('/json/:name/latest', snapshots.latestJSON);
-app.get('/json/:name/:id', snapshots.getJSON);
-app.get('/vmt/:name/latest/:lang/:set', snapshots.latestVMT);
-app.get('/vmt/:name/:id/:lang/:set', snapshots.getVMT);
+app.get('/id/:device/:name/latest', snapshots.latestID);
+app.get('/json/:device/:name/live', snapshots.liveJSON);
+app.get('/json/:device/:name/latest', snapshots.latestJSON);
+app.get('/json/:device/:name/:id', snapshots.getJSON);
+app.get('/vmt/:device/latest/:lang/:name', snapshots.latestVMT);
+app.get('/vmt/:device/:id/:lang/:name', snapshots.getVMT);
 
 app.get('/qr', tools.qr);
 app.post('/qr', tools.qrPost);

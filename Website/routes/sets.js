@@ -1,14 +1,25 @@
 var fs = require('fs')
-  , utils = require('../libs/utils.js')
-  , model = require('../libs/model.js')
-  , cultures = require('../libs/cultures.js');
+  , utils = require('../libs/utils')
+  , model = require('../libs/model')
+  , cultures = require('../libs/cultures');
 
 var Set = model.Set
   , Term = model.Term
-  , Entry = model.Entry;
+  , Entry = model.Entry
+  , Snapshot = model.Snapshot
+  , SnapshotData = model.SnapshotData;
+
+function setupSet(set, src) {
+  set.name = src.name;
+  set.title = src.title;
+  set.langs = src.langs;
+  set.version = src.version;
+  set.changes = src.changes;
+  set.devices = src.devices.trim().split(/ /g).map(function (n) { return n.trim(); });
+}
 
 exports.index = function (req, res) {
-  Set.find(function (err, sets) {
+  Set.find().exec(function (err, sets) {
     if (err)
       return res.render('error', { error: err });
 
@@ -24,9 +35,9 @@ exports.add = function (req, res) {
 
 exports.addPost = function (req, res) {
   var set = new Set();
-  set.name = req.body.name;
-  set.title = req.body.title;
-  set.langs = req.body.langs;
+
+  setupSet(set, req.body);
+
   set.save(function (err) {
     if (err)
       return res.render('error', { error: err });
@@ -46,12 +57,11 @@ exports.edit = function (req, res) {
 
 exports.editPost = function (req, res) {
   Set.findById(req.params.id, function (err, set) {
-    if (err && set)
-      return res.render('error', { error: err || 'no set with this id' });
+    if (err || !set)
+      return res.render('error', { error: err || 'set not found' });
 
-    set.name = req.body.name;
-    set.title = req.body.title;
-    set.langs = req.body.langs;
+    setupSet(set, req.body);
+
     set.save(function (err) {
       if (err)
         return res.render('error', { error: err });
@@ -62,12 +72,8 @@ exports.editPost = function (req, res) {
 };
 
 exports.import = function (req, res) {
-  Set.findById(req.params.id, function (err, set) {
-    if (err || !set)
-      return res.render('error', { error: err || 'item not found' });
-
-    res.render('import', { set: set });
-  });
+  var set = new Set();
+  res.render('import', { set: set });
 };
 
 exports.importPost = function (req, res) {
@@ -76,75 +82,66 @@ exports.importPost = function (req, res) {
       return res.render('error', { error: err || 'no file sent' });
 
     var json = JSON.parse(data);
+    var langs = null;
 
-    Set.findById(req.params.id, function (err, set) {
-      if (err || !set)
-        return res.render('error', { error: err || 'set not found' });
-
-      var langs = null;
-
-      for (var i = 0; i < json.length; i++) {
-        if (json[i][0] === 'LangId') {
-          langs = json[i].map(function (x) {
-            if (x === 'LangId')
-              return 'key';
-            if (x === 'us')
-              return 'en-US';
-            return x;
-          });
-        }
+    for (var i = 0; i < json.length; i++) {
+      if (json[i][0] === 'LangId') {
+        langs = json[i].map(function (x) {
+          if (x === 'LangId')
+            return 'key';
+          if (x === 'us')
+            return 'en-US';
+          return x;
+        });
       }
+    }
 
-      Term.find({ setId: set.id }, function (err1, terms) {
-        Entry.find({ setId: set.id }, function (err2, entries) {
-          if (err1 || err2)
-            return res.render('error', { error: err1 || err2 });
+    var set = new Set();
+    set.title = req.body.title;
+    set.langs = langs.slice(1);
+    set.save(function (err, set) {
+      json.forEach(function (t, index) {
+        if (t[0] == 'LangId' || t[0] == 'Lang')
+          return;
 
-          terms.forEach(function (t) { t.remove(); });
-          entries.forEach(function (e) { e.remove(); });
-
-          set.langs = langs.slice(1);
-          set.save(function (err, set) {
-            json.forEach(function (t, index) {
-              if (t[0] == 'LangId' || t[0] == 'Lang')
-                return;
-
-              var term = new Term();
-              term.setId = set.id;
-              term.date = Date.now();
-              term.userId = req.user.id;
-              term.order = index;
-              term.save(function (err, _term) {
-                t.forEach(function (l, li) {
-                  if (l) {
-                    var entry = new Entry();
-                    entry.setId = set.id;
-                    entry.termId = _term.id;
-                    entry.userId = req.user.id;
-                    entry.lang = langs[li];
-                    entry.date = Date.now();
-                    entry.value = (l || '').trim();
-                    entry.save();
-                  }
-                });
-              });
-            });
-
-            res.redirect('/sets');
+        var term = new Term();
+        term.setId = set.id;
+        term.date = Date.now();
+        term.userId = req.user.id;
+        term.order = index;
+        term.save(function (err, _term) {
+          t.forEach(function (l, li) {
+            if (l) {
+              var entry = new Entry();
+              entry.setId = set.id;
+              entry.termId = _term.id;
+              entry.userId = req.user.id;
+              entry.lang = langs[li];
+              entry.date = Date.now();
+              entry.value = (l || '').trim();
+              entry.save();
+            }
           });
         });
       });
+
+      res.redirect('/sets');
     });
   });
 };
 
 exports.export = function (req, res) {
-  model.createSnapshotFromGenerator({ sets: [req.params.id] }, function (err, snapshot) {
-    if (err)
-      return res.json({ error: err });
+  Set.findById(req.params.id, function (err, set) {
+    if (err || !set)
+      return res.json({ error: err || 'no set' });
 
-    res.charset = 'utf-8';
-    res.json(snapshot.json[snapshot.sets]);
+    set.export(function (err, data) {
+      if (err)
+        return res.json({ error: err });
+
+      res.charset = 'utf-8';
+      res.json(data);
+    });
   });
 };
 
@@ -158,66 +155,71 @@ exports.clone = function (req, res) {
 };
 
 exports.clonePost = function (req, res) {
-  Set.findById(req.params.id, function (err, source) {
-    if (err || !source)
-      return res.render('error', { error: err || 'item not found' });
+  model.cloneSet(req.params.id, req.body.name, req.body.title, req.body.langs, function (err, set) {
+    if (err)
+      res.render('error', { error: err });
+    else
+      res.redirect('/sets');
+  });
+};
 
-    var langs = ['key'].concat(req.body.langs);
+exports.versions = function (req, res) {
+  Set.findById(req.params.id, function (err1, set) {
+    Snapshot.find({ setId: set._id }).sort('-date').exec(function (err2, snapshots) {
+      if (err1 || err2)
+        return res.render('error', { error: err1 || err2 });
 
-    Term.find({ setId: source.id, deleted: { $ne: true } }, function (err1, terms) {
-      Entry.find({ setId: source.id, deleted: { $ne: true }, lang: { $in: langs } }, function (err2, entries) {
-        if (err1 || err2)
-          return res.render('error', { error: err1 || err2 });
+      res.render('versions', { set: set, snapshots: snapshots });
+    });
+  });
+};
 
-        console.log(terms.length + ' terms');
-        console.log(entries.length + ' entries');
+exports.newVersion = function (req, res) {
+  Set.findById(req.params.id, function (err, set) {
+    if (err)
+      return res.render('error', { error: err });
 
-        var set = new Set();
-        set.name = req.body.name;
-        set.title = req.body.title;
-        set.langs = req.body.langs;
-        set.save(function (err, s) {
-          if (err)
-            return res.render('error', { error: err });
+    res.render('newVersion', { set: set });
+  });
+};
 
-          var termIds = {};
+exports.newVersionPost = function (req, res) {
+  Set.findById(req.params.id, function (err, set) {
+    if (err || !set)
+      return res.render('error', { error: err || 'no set' });
 
-          utils.whenAll(terms, function (t, done) {
-            var term = new Term();
-            term.setId = s.id;
-            term.order = t.order;
-            term.date = t.date;
-            term.userId = t.userId;
-            term.save(function (err, tt) {
+    set.export(function (err, exportData) {
+      if (err)
+        return res.render('error', { error: err });
+
+      var snapshot = new Snapshot();
+      snapshot.setId = set._id;
+      snapshot.userId = req.user._id;
+      snapshot.version = req.body.version;
+      snapshot.changes = req.body.changes;
+      snapshot.date = new Date();
+      snapshot.save(function (err, s) {
+        if (err)
+          return res.render('error', { error: err });
+
+        var data = new SnapshotData();
+        data.snapshotId = s._id;
+        data.json = JSON.stringify(exportData);
+        data.save(function (err) {
+          if (err) {
+            s.remove(function () {
+              res.render('error', { error: err });
+            });
+          } else {
+            set.version = req.body.newVersion;
+            set.changes = '';
+            set.save(function (err) {
               if (err)
-                console.log('Error: ' + err);
+                res.render('error', { error: err });
               else
-                termIds[t.id] = tt.id;
-              done();
+                res.redirect('/sets/versions/' + set.id);
             });
-          }, function () {
-            utils.whenAll(entries, function (e, done) {
-              if (!termIds[e.termId]) {
-                console.log('Error: missing term ID');
-                return done();
-              }
-
-              var entry = new Entry();
-              entry.setId = s.id;
-              entry.termId = termIds[e.termId];
-              entry.userId = e.userId;
-              entry.lang = e.lang;
-              entry.date = e.date;
-              entry.value = e.value;
-              entry.save(function (err) {
-                if (err)
-                  console.log('Error: ' + err);
-                done();
-              });
-            }, function () {
-              res.redirect('/sets');
-            });
-          });
+          }
         });
       });
     });
@@ -226,3 +228,6 @@ exports.clonePost = function (req, res) {
 
 exports.delete = utils.deleteItem(Set, '/sets');
 exports.restore = utils.restoreItem(Set, '/sets');
+
+exports.deleteSnapshot = utils.deleteItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });
+exports.restoreSnapshot = utils.restoreItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });

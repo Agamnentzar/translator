@@ -7,19 +7,25 @@ block pageContent
 				input.button-show-deleted(type='checkbox', autocomplete='off')
 				| Show deleted
 		a.btn.btn-sm.btn-primary(href='/sets/add') Add Set
+		| 
+		a.btn.btn-sm.btn-default(href='/sets/import') Import Set
 	h1 Sets
 	table
 		thead
 			tr
 				th Name
+				th Devices
 				th Title
+				th Version
 				th Languages
 				th Commands
 		tbody
 			each s in sets
 				tr(class=s.deleted ? 'deleted' : '')
 					td=s.name
+					td=s.devices.join(' ')
 					td=s.title
+					td=s.version
 					td
 						each l in s.langs
 							- var c = cultures.get(l)
@@ -28,8 +34,8 @@ block pageContent
 						if s.deleted
 							a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
 						else
+							a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
 							a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
-							a.btn.btn-sm.btn-default(href='/sets/import/' + s.id) Import
 							a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) Export
 							a.btn.btn-sm.btn-default(href='/sets/clone/' + s.id) Clone
 							a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id) Delete

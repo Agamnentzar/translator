@@ -1,0 +1,28 @@
+extends pageLayout
+
+block pageContent
+	form.form-horizontal(action='', method='post', role='form')
+		.form-group
+			h2.col-sm-offset-4.col-sm-8 New Version
+		.form-group
+			label.col-sm-4.control-label Set
+			.col-sm-8
+				p.form-control-static=set.title
+		.form-group
+			label.col-sm-4.control-label(for='inputVersion') Version
+			.col-sm-8
+				input#inputVersion.form-control(type='text', name='version', value=set.version, autocomplete='off', required)
+		.form-group
+			label.col-sm-4.control-label(for='inputChanges') Changes
+			.col-sm-8
+				textarea#inputChanges.form-control(name='changes', rows=5)=set.changes
+		hr
+		.form-group
+			label.col-sm-4.control-label(for='inputNewVersion') New Version
+			.col-sm-8
+				input#inputNewVersion.form-control(type='text', name='newVersion', value='', autocomplete='off', required)
+		.form-group
+			.col-sm-offset-4.col-sm-8
+				a.btn.btn-default(href='/sets/versions/' + set.id) Cancel
+				| 
+				button.btn.btn-primary(type='submit') Create

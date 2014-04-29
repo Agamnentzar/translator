@@ -8,16 +8,13 @@ block pageContent
 		if error
 			.alert.alert-danger=error
 		.form-group
-			label.col-sm-4.control-label(for='inputTitle') Set
+			label.col-sm-4.control-label(for='inputTitle') Title
 			.col-sm-8
-				p.form-control-static=set.title
+				input#inputTitle.form-control(type='text', required)
 		.form-group
 			label.col-sm-4.control-label(for='inputFile') File
 			.col-sm-8
 				input#inputFile(type='file', name='file', required)
-		.alert.alert-warning 
-			b Warning! 
-			| This action will erase all translations for this set
 		.form-group
 			.col-sm-offset-4.col-sm-8
 				a.btn.btn-default(href='/sets') Cancel
