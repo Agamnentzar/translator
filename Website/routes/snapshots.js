@@ -48,12 +48,14 @@ function findVmtById(id, req, res) {
       var k = (data[i][0] || '').trim();
       var v = (data[i][index] || '').trim();
 
-      if (/_start$/.test(k))
-        v = v.replace(/^\s*([0-9]+\.) ?(.+)$/m, '$1 \\>$2\\<');
+      if (k) {
+        if (/_start$/.test(k))
+          v = v.replace(/^\s*([0-9]+\.) ?(.+)$/m, '$1 \\>$2\\<');
 
-      v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
 
-      lines[i] = k + ' ' + v;
+        lines[i] = k + ' ' + v;
+      }
     }
 
     res.charset = 'utf-8';
