@@ -34,7 +34,7 @@ block pageContent
 		.form-group
 			label.col-sm-4.control-label(for='inputDevices') Devices
 			.col-sm-8
-				input#inputDevices.form-control(type='text', name='devices', value=set.devices, autocomplete='off')
+				input#inputDevices.form-control(type='text', name='devices', value=set.devices.join(' '), autocomplete='off')
 				em.help-block Space separated names used for access by dev tools
 		.form-items
 			.form-group
