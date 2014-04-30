@@ -19,24 +19,29 @@ function getLatestId(device, name, callback) {
 }
 
 function findDataById(id, callback) {
-  Snapshot.find(function (err, snapshots) {
-    if (err)
-      return callback(err);
+  SnapshotData.findOne({ snapshotId: id }, function (err, data) {
+    if (data)
+      return callback(null, data);
 
-    var regex = new RegExp('.*' + id + '$');
+    Snapshot.find(function (err, snapshots) {
+      if (err)
+        return callback(err);
 
-    for (var i = 0; i < snapshots.length; i++) {
-      if (regex.test(snapshots[i].id)) {
-        return SnapshotData.findOne({ snapshotId: snapshots[i]._id }, function (err, data) {
-          if (err || !data)
-            return callback(err || 'data not found');
+      var regex = new RegExp('.*' + id + '$');
 
-          callback(null, data);
-        });
+      for (var i = 0; i < snapshots.length; i++) {
+        if (regex.test(snapshots[i].id)) {
+          return SnapshotData.findOne({ snapshotId: snapshots[i]._id }, function (err, data) {
+            if (err || !data)
+              return callback(err || 'data not found');
+
+            callback(null, data);
+          });
+        }
       }
-    }
 
-    return callback('snapshot not found');
+      return callback('snapshot not found');
+    });
   });
 }
 
