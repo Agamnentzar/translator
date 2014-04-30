@@ -47,9 +47,10 @@ block pageContent
 						br
 						each l in s.langs
 							- var c = cultures.get(l);
-							label.checkbox-inline
-								input.permission-edit-lang(type='checkbox', name=name, value=l, checked=user.can(l, s.id))
-								img(src=c.flag, title=c.name)
+							if c
+								label.checkbox-inline
+									input.permission-edit-lang(type='checkbox', name=name, value=l, checked=user.can(l, s.id))
+									img(src=c.flag, title=c.name)
 
 		.form-group
 			.col-sm-offset-4.col-sm-8
