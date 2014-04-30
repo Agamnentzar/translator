@@ -151,10 +151,8 @@ exports.cloneSet = function (id, name, title, langs, callback) {
     if (err || !source)
       return callback(err || 'item not found');
 
-    var langs = ['key'].concat(langs);
-
     Term.find({ setId: source.id, deleted: { $ne: true } }, function (err1, terms) {
-      Entry.find({ setId: source.id, deleted: { $ne: true }, lang: { $in: langs } }, function (err2, entries) {
+      Entry.find({ setId: source.id, deleted: { $ne: true }, lang: { $in: ['key'].concat(langs) } }, function (err2, entries) {
         if (err1 || err2)
           return callback(err1 || err2);
 

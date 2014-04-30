@@ -29,7 +29,8 @@ block pageContent
 					td
 						each l in s.langs
 							- var c = cultures.get(l)
-							img.flag(src=c.flag, title=c.name)
+							if c
+								img.flag(src=c.flag, title=c.name)
 					td.commands
 						if s.deleted
 							a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
