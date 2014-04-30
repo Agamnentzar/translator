@@ -18,10 +18,32 @@ function getLatestId(device, name, callback) {
   });
 }
 
+function findDataById(id, callback) {
+  Snapshot.find(function (err, snapshots) {
+    if (err)
+      return callback(err);
+
+    var regex = new RegExp('.*' + id + '$');
+
+    for (var i = 0; i < snapshots.length; i++) {
+      if (regex.test(snapshots[i].id)) {
+        return SnapshotData.findOne({ snapshotId: snapshots[i]._id }, function (err, data) {
+          if (err || !data)
+            return callback(err || 'data not found');
+
+          callback(null, data);
+        });
+      }
+    }
+
+    return callback('snapshot not found');
+  });
+}
+
 function findById(id, res) {
-  SnapshotData.findOne({ snapshotId: id }, function (err, data) {
-    if (err || !data)
-      return res.json({ error: err || 'data not found' });
+  findDataById(id, function (err, data) {
+    if (err)
+      return res.json({ error: err });
 
     res.charset = 'utf-8';
     res.set('Content-Type', 'application/json');
@@ -30,9 +52,9 @@ function findById(id, res) {
 }
 
 function findVmtById(id, req, res) {
-  SnapshotData.findOne({ snapshotId: id }, function (err, data) {
-    if (err || !data)
-      return res.send('Error: ' + (err || 'data not found'));
+  findDataById(id, function (err, data) {
+    if (err)
+      return res.send('Error: ' + err);
 
     var lines = [];
     var lang = req.params.lang;
