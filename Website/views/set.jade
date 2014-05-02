@@ -42,7 +42,8 @@ block pageContent
 				.form-items-list.col-sm-8
 					each l in set.langs
 						- var c = cultures.get(l);
-						+lang(c.id, c.name)
+						if c
+							+lang(c.id, c.name)
 			.form-group
 				.col-sm-offset-4.col-sm-8
 					select.form-items-selector.form-control

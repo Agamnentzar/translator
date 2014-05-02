@@ -213,6 +213,8 @@ var Api = (function () {
         return p.add || p.all || p[l];
       });
 
+      $('.button-add').prop('disabled', !p.add);
+
       langDropdowns.append('<li><a href="#" class="lang-none" data-lang="none">none</a></li>');
 
       data.langs.forEach(function (l) {
