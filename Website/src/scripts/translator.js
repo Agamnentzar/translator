@@ -79,7 +79,7 @@ var Api = (function () {
     var head = $('<div class="row head"></div>');
     var counters = $('<div class="row head counters"></div>');
 
-    $('<div class="cell"></div>').appendTo(head);
+    $('<div class="cell">TAG</div>').appendTo(head);
     $('#firstcell-template > *').clone().appendTo(counters);
 
     data.langs.forEach(function (l) {
