@@ -91,6 +91,34 @@ function findVmtById(id, req, res) {
   });
 }
 
+function findHById(id, req, res) {
+  findDataById(id, function (err, data) {
+    if (err)
+      return res.send('Error: ' + err);
+
+    data = JSON.parse(data.json);
+
+    var result = '#ifndef I18N_TABLES_H\n'
+               + '#define I18N_TABLES_H\n'
+               + 'typedef enum {\n';
+
+    for (var i = 0; i < data.length; i++) {
+      var k = (data[i][0] || '').trim();
+
+      if (k)
+        result += '\ti18n_' + k.toUpperCase() + ',\n';
+    }
+
+    result += '\t__LAST_i18n,\n'
+           + '} i18n_code;\n'
+           + '#endif // I18N_TABLES_H';
+
+    res.charset = 'utf-8';
+    res.set('Content-Type', 'text/plain');
+    res.send(result);
+  });
+}
+
 exports.latestID = function (req, res) {
   getLatestId(req.params.device, req.params.name, function (err, id) {
     if (err)
@@ -140,5 +168,20 @@ exports.latestVMT = function (req, res) {
       return res.send('Error: ' + err);
 
     findVmtById(id, req, res);
+  });
+};
+
+exports.getH = function (req, res) {
+  findHById(req.params.id, req, res);
+};
+
+exports.latestH = function (req, res) {
+  var name = req.params.name.replace(/\..*$/, '');
+
+  getLatestId(req.params.device, name, function (err, id) {
+    if (err)
+      return res.send('Error: ' + err);
+
+    findHById(id, req, res);
   });
 };

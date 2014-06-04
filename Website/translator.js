@@ -91,6 +91,8 @@ app.get('/json/:device/:name/latest', snapshots.latestJSON);
 app.get('/json/:device/:name/:id', snapshots.getJSON);
 app.get('/vmt/:device/latest/:lang/:name', snapshots.latestVMT);
 app.get('/vmt/:device/:id/:lang/:name', snapshots.getVMT);
+app.get('/h/:device/:name/latest', snapshots.latestH);
+app.get('/h/:device/:name/:id', snapshots.getH);
 
 app.get('/qr', tools.qr);
 app.post('/qr', tools.qrPost);
