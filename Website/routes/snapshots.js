@@ -100,18 +100,16 @@ function findHById(id, req, res) {
 
     var result = '#ifndef I18N_TABLES_H\n'
                + '#define I18N_TABLES_H\n'
-               + 'typedef enum {\n';
+               + '\n';
 
     for (var i = 0; i < data.length; i++) {
       var k = (data[i][0] || '').trim();
 
       if (k)
-        result += '\ti18n_' + k.toUpperCase() + ',\n';
+        result += 'static const char* i18n_' + k.toUpperCase() + ' = "' + k + '";\n';
     }
 
-    result += '\t__LAST_i18n,\n'
-           + '} i18n_code;\n'
-           + '#endif // I18N_TABLES_H';
+    result += '\n#endif // I18N_TABLES_H';
 
     res.charset = 'utf-8';
     res.set('Content-Type', 'text/plain');
