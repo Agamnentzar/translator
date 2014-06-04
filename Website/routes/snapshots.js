@@ -106,7 +106,7 @@ function findHById(id, req, res) {
       var k = (data[i][0] || '').trim();
 
       if (k)
-        result += 'static const char* i18n_' + k.toUpperCase() + ' = "' + k + '";\n';
+        result += '__attribute__((used)) static const char* i18n_' + k.toUpperCase() + ' = "' + k + '";\n';
     }
 
     result += '\n#endif // I18N_TABLES_H';
