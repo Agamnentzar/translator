@@ -84,6 +84,8 @@ function findVmtById(id, req, res) {
         lines[i] = k + ' ' + v;
       }
     }
+    
+    lines.push('');
 
     res.charset = 'utf-8';
     res.set('Content-Type', 'text/plain');
