@@ -99,15 +99,16 @@ var Api = (function () {
     refreshCounters();
   }
 
+  function isTermVisible(i) {
+    return viewAll || i === 0 || i === viewRef || i === viewTgt;
+  }
+
   function createRow(term) {
     var p = data.permissions;
     var row = rowHtml.clone();
-    var search = ' ';
-    var all = viewAll, ref = viewRef, tgt = viewTgt;
 
     term.entries.forEach(function (e, i) {
-      if (all || i === 0 || i === ref || i === tgt) {
-        search += (e || '').toLowerCase() + ' ';
+      if (isTermVisible(i)) {
         cellHtml.clone().data({ term: term.id, lang: i })
                 .toggleClass('key', i === 0).toggleClass('edit', p[i])
                 .text(e).appendTo(row);
@@ -118,7 +119,18 @@ var Api = (function () {
       row.addClass('special');
 
     term.row = row;
-    term.search = search;
+    term.search = createSearch(term);
+  }
+
+  function createSearch(term) {
+    var search = [];
+
+    term.entries.forEach(function (e, i) {
+      if (isTermVisible(i) && e)
+        search.push(e.toLowerCase());
+    });
+
+    return search.join(' ');
   }
 
   function rebuildRows() {
@@ -293,6 +305,7 @@ var Api = (function () {
           t.entries[langIndex] = value;
           t.changed[langIndex] = true;
           t.counts[langIndex] = count(value);
+          t.search = createSearch(t);
           break;
         }
       }
@@ -590,9 +603,7 @@ var Api = (function () {
     $('#scrollable-head').toggleClass('shadow', $('#scrollable').scrollTop() !== 0);
   }
 
-  // Api.switchSet = function (set) {
-  // 
-  // };
+  // Api.switchSet = function (set) { };
 
   Api.data = function () {
     return data;
