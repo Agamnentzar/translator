@@ -44,6 +44,7 @@ ag(app, express, {
 app.locals.cultures = cultures;
 
 app.get('/', auth, routes.index);
+app.get('/angular', auth, routes.angular);
 app.get('/cultures', auth, routes.cultures);
 app.post('/login', users.login);
 app.get('/logout', auth, users.logout);

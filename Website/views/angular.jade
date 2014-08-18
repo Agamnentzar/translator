@@ -1,0 +1,108 @@
+extends layout
+
+block content
+	div(ng-app='translatorApp')
+		#translator(ng-controller='translatorController', ng-init='init(' + JSON.stringify({ sets: sets, permissions: loggedInUser.permissions }) + ')')
+			#controls(ng-if='loaded')
+				#dropdown-set.btn-group
+					button.btn.btn-primary.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+						| {{set.title}} 
+						span.caret
+					ul.dropdown-menu(role='menu')
+						li(ng-repeat='s in sets')
+							a(href='#', ng-click='selectSet(s)') {{s.title}}
+				|  
+				input.input-sm.form-control(ng-model='search', type='search', placeholder='search', autocomplete='off')
+				|  Reference: 
+				#lang-ref.btn-group
+					button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+						img.flag(ng-if='ref.flag', ng-href='{{ref.flag}}')
+						| {{ref.name}} 
+						span.caret
+					ul.dropdown-menu(role='menu')
+						li(ng-repeat='l in langs')
+							a(ng-click='selectRef(l)', href='#')
+								img.flag(ng-if='l.flag', ng-src='{{l.flag}}')
+								| {{l.name}}
+						
+				|  Target: 
+				#lang-target.btn-group
+					button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+						img.flag(ng-if='target.flag', ng-href='{{target.flag}}')
+						| {{target.name}} 
+						span.caret
+					ul.dropdown-menu(role='menu')
+						li(ng-repeat='l in langs')
+							a(ng-click='selectTarget(l)', href='#')
+								img.flag(ng-if='l.flag', ng-src='{{l.flag}}')
+								| {{l.name}}
+				|  
+				button.button-add.btn.btn-sm.btn-default(ng-click='add()') Add
+				| 
+				button.button-changes.btn.btn-sm.btn-default
+					| Edit changelog for v{{set.version}} 
+					span.caret
+
+			#user
+				strong=loggedInUser.name
+				a.btn.btn-sm.btn-danger(href='/logout') Sign Out
+				| 
+				a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id)) Settings
+
+			#scrollable-head(ng-if='loaded')
+				.main-table
+					.row.head
+						.cell TAG
+						.cell(ng-repeat='l in langs', ng-if='$index > 0')
+							img.flag(ng-if='l.flag', ng-src='{{l.flag}}', title='{{l.name}}')
+							| {{l.name}}
+							span.adnotation ({{l.id}})
+					.row.head.counters
+						.cell
+							button.btn.btn-sm.btn-default.button-cancel-moving(ng-if='false') cancel moving
+						.cell(ng-repeat='l in langs', ng-if='$index > 0')
+							abbr(title='words') WR
+							| : 
+							span.counter-words {{l.words}}
+							br
+							abbr(title='characters (no space)') CN
+							| : 
+							span.counter-chars {{l.charsNoSpace}}
+							br
+							abbr(title='characters (with space)') CW
+							| : 
+							span.counter-allchars {{l.charsSpace}}
+							br
+
+			#scrollable(ng-if='loaded')
+				.main-table
+					.row(ng-repeat='t in terms')
+						.cell(ng-repeat='l in langs', ng-class='{ edit: false }') {{t.entries[$index]}}
+
+			#loading(ng-if='!loaded')
+				div
+					div
+						div
+							div LOADING...
+		
+			#templates(style='display:none')
+				#editor-template
+					.editor
+						.editor-controls
+							button.btn.btn-xs.btn-danger.button-cancel cancel
+							| 
+							button.btn.btn-xs.btn-warning.button-undo(disabled) undo
+							| 
+							button.btn.btn-xs.btn-warning.button-redo(disabled) redo
+							| 
+							button.btn.btn-xs.btn-success.button-ok ok
+						.editor-controls-key
+							button.btn.btn-xs.btn-danger.button-delete delete
+							| 
+							button.btn.btn-xs.btn-default.button-add-above add
+							| 
+							button.btn.btn-xs.btn-default.button-move move
+						textarea
+	
+	script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.17/angular.js')
+	!=scripts('angular')
