@@ -214,7 +214,7 @@ var Api = (function () {
     $('#loading').show();
     $('#dropdown-set .value').text(set.title);
 
-    $.getJSON('/api/get', { setId: set.id }, function (_data) {
+    $.getJSON('/api/get', { setId: set.id, timestamp: Date.now() }, function (_data) {
       data = _data;
       data.setId = set.id;
       data.langIds = ['key'].concat(data.langs.map(function (l) { return l.id; }));
