@@ -73,7 +73,7 @@ function findVmtById(id, req, res) {
 
     for (var i = 0; i < data.length; i++) {
       var k = (data[i][0] || '').trim();
-      var v = (data[i][index] || '').trim();
+      var v = (data[i][index] || data[i][1]).trim();
 
       if (k) {
         if (/_start$/.test(k))
