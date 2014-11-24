@@ -23,7 +23,7 @@ var Api = (function () {
   }
 
   function isSpecial(key) {
-    return /_P\d+$/.test(key || '');
+    return /(_Custom|_P\d+)$/.test(key || '');
   }
 
   function getSet() {
