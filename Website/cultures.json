@@ -110,6 +110,11 @@
     "nativeName": "English"
   },
   {
+    "id": "en-US",
+    "name": "English (United States)",
+    "nativeName": "English (United States)"
+  },
+  {
     "id": "es",
     "name": "Spanish",
     "nativeName": "español"
@@ -365,6 +370,11 @@
     "nativeName": "português"
   },
   {
+    "id": "pt-BR",
+    "name": "Portuguese (Brazil)",
+    "nativeName": "português (Brasil)"
+  },
+  {
     "id": "quz",
     "name": "Quechua",
     "nativeName": "runasimi"
@@ -513,10 +523,5 @@
     "id": "zh-TW",
     "name": "Chinese (Traditional)",
     "nativeName": "中文(繁體)"
-  },
-  {
-    "id": "en-US",
-    "name": "English (United States)",
-    "nativeName": "English (United States)"
   }
 ]
