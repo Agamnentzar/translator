@@ -32,6 +32,7 @@ namespace Helper
 			//cultures.Add(CultureInfo.GetCultureInfo("en-GB"));
 			cultures.Add(CultureInfo.GetCultureInfo("en-US"));
 			cultures.Add(CultureInfo.GetCultureInfo("pt-BR"));
+
 			cultures.Sort((a, b) => a.Name.CompareTo(b.Name));
 
 			var data = cultures.Where(c => !exclude.Contains(c.Name)).Select(c => new
@@ -39,6 +40,13 @@ namespace Helper
 				id = change.ContainsKey(c.Name) ? change[c.Name] : c.Name,
 				name = c.EnglishName,
 				nativeName = c.NativeName,
+			}).ToList();
+
+			data.Add(new
+			{
+				id = "md",
+				name = "Moldavian",
+				nativeName = "Moldovan",
 			});
 
 			var json = JsonConvert.SerializeObject(data, Formatting.Indented);
