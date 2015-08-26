@@ -455,6 +455,10 @@ var Api = (function () {
       addTerm();
     });
 
+    $('.button-print').on('click', function () {
+    	window.open('/sets/print/' + data.setId + '?ref=' + $('#lang-ref').data('lang') + '&target=' + $('#lang-target').data('lang'));
+    });
+
     $('#scrollable').on('click', '.edit', function () {
       var cell = $(this);
       var lang = data.langIds[cell.data('lang')];

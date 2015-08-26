@@ -1,12 +1,13 @@
 doctype html
 html
 	head
-		meta(charset='utf-8')
+		meta(charset="utf-8")
 		title Verity Translator
-		script(src='//code.jquery.com/jquery-2.1.0.min.js')
-		script(src='//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
-		!=scripts('libs')
-		link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css')
-		link(rel='stylesheet', href='/styles/style.min.css')
+		script(src="//code.jquery.com/jquery-2.1.0.min.js")
+		script(src="//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js")
+		link(rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
+		link(rel="stylesheet" href="/styles/style.css?" + timestamp)
 	body
 		block content
+		script(src="/scripts/moment.min.js?" + timestamp)
+		block scripts

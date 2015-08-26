@@ -4,29 +4,31 @@ block content
 	#translator(data-permissions=JSON.stringify(loggedInUser.permissions))
 		#controls(style='visibility: hidden')
 			#dropdown-set.btn-group
-				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
 					span.value
 					span.caret
 				ul.dropdown-menu(role='menu')
 					each s in sets
 						li
-							a(href='#', data-id=s.id)=s.title
+							a(href='#' data-id=s.id)=s.title
 			|  
-			input#search.input-sm.form-control(type='search', placeholder='search', autocomplete='off')
+			input#search.input-sm.form-control(type='search' placeholder='search' autocomplete='off')
 			|  Reference: 
 			#lang-ref.btn-group
-				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+				button.btn.btn-default.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
 					span.value
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  Target: 
 			#lang-target.btn-group
-				button.btn.btn-default.btn-sm.dropdown-toggle(type='button', data-toggle='dropdown')
+				button.btn.btn-default.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
 					span.value
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  
 			button.button-add.btn.btn-sm.btn-default Add
+			| 
+			button.button-print.btn.btn-sm.btn-default Print
 			| 
 			button.button-changes.btn.btn-sm.btn-default
 				| Edit changelog for v
@@ -86,4 +88,5 @@ block content
 					span.counter-allchars
 					br
 	
-	!=scripts('translator')
+block scripts
+	script(src="/scripts/translator.js?" + timestamp)

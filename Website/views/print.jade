@@ -1,0 +1,39 @@
+﻿doctype html
+html
+	head
+		meta(charset='utf-8')
+		title Verity Translator
+		style.
+			table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+			th {
+				background: #eee;
+			}
+			th, td {
+				border: solid 1px #aaa;
+				text-align: left;
+				vertical-align: top;
+				padding: 5px;
+				white-space: pre-line;
+			}
+	body
+		div
+			table
+				thead
+					tr
+						if ref !== -1
+							th=data[0][ref]
+						if target !== -1
+							th=data[0][target]
+				tbody
+					each row in data.slice(2)
+						if (row[ref] || row[target])
+							tr
+								if ref !== -1
+									td=row[ref]
+								if target !== -1
+									td=row[target]
+	script.
+		print();

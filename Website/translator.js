@@ -1,7 +1,6 @@
 var express = require('express')
   , http = require('http')
   , path = require('path')
-  , ag = require('ag-static-content')
   , routes = require('./routes')
   , users = require('./routes/users')
   , sets = require('./routes/sets')
@@ -10,11 +9,14 @@ var express = require('express')
   , api = require('./routes/api')
   , tools = require('./routes/tools')
   , auth = require('./libs/auth')
-  , cultures = require('./libs/cultures');
+  , cultures = require('./libs/cultures')
+  , timestamp = require('./libs/timestamp.js')
+;
 
-var isProduction = process.env.NODE_ENV === 'production';
-var admin = auth.admin;
 var app = express();
+var production = process.env.NODE_ENV === 'production';
+var staticContentAge = 0; // production ? (1000 * 3600 * 24 * 365) : 0;
+var admin = auth.admin;
 
 app.set('port', process.env.PORT || 8097);
 app.set('views', __dirname + '/views');
@@ -29,17 +31,15 @@ app.use(function (req, res, next) {
   var url = req.originalUrl;
   var index = url.substr(1).indexOf('/');
   res.locals.currentLocation = index === -1 ? url : url.substr(0, index + 1);
+  res.locals.timestamp = timestamp;
   next();
 });
 app.use(app.router);
 app.use(express.compress());
 
-ag(app, express, {
-  debug: !isProduction,
-  source: __dirname + '/src',
-  output: __dirname + '/public',
-  scripts: __dirname + '/scripts.json'
-});
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: staticContentAge }));
+app.use(express.static(path.join(__dirname, 'build'), { maxAge: staticContentAge }));
+app.use(express.static(path.join(__dirname, 'src'), { maxAge: staticContentAge }));
 
 app.locals.cultures = cultures;
 
@@ -83,6 +83,7 @@ app.get('/sets/new/:id', admin, sets.newVersion);
 app.post('/sets/new/:id', admin, sets.newVersionPost);
 app.get('/sets/version/delete/:id', admin, sets.deleteSnapshot);
 app.get('/sets/version/restore/:id', admin, sets.restoreSnapshot);
+app.get('/sets/print/:id', admin, sets.print);
 
 app.get('/changes', admin, changes.index);
 

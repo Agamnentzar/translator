@@ -234,3 +234,20 @@ exports.restore = utils.restoreItem(Set, '/sets');
 
 exports.deleteSnapshot = utils.deleteItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });
 exports.restoreSnapshot = utils.restoreItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });
+
+exports.print = function (req, res) {
+	Set.findById(req.params.id, function (err, set) {
+		if (err || !set)
+			return res.send(err || 'no set');
+		
+		set.export(function (err, data) {
+			if (err)
+				return res.send(err);
+
+			var ref = data[1].indexOf(req.query.ref);
+			var target = data[1].indexOf(req.query.target);
+
+			res.render('print', { data: data, ref: ref, target: target });
+		});
+	});
+};

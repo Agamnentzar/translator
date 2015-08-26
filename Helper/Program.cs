@@ -11,6 +11,34 @@ namespace Helper
 	{
 		static void Main(string[] args)
 		{
+			//GenerateCultures();
+			ShowMonthNames("en", "ja", "da", "ko", "pt", "sv", "de", "es", "fr", "it", "no", "fi", "tr", "cs", "ru", "el", "nl");
+		}
+
+		static void ShowMonthNames(params string[] cultures)
+		{
+			var lines = new List<string>();
+
+			foreach (var c in cultures)
+			{
+				var culture = CultureInfo.GetCultureInfo(c);
+
+				lines.Add(culture.DisplayName);
+
+				for (int i = 0; i < 12; i++)
+				{
+					var date = new DateTime(2000, i + 1, 1);
+					lines.Add("\t" + date.ToString("MMM", culture) + "\t\t" + date.ToString("MMMM", culture));
+				}
+
+				lines.Add("");
+			}
+
+			File.WriteAllLines("months.c", lines);
+		}
+
+		static void GenerateCultures()
+		{
 			var exclude = new string[] {
 				"", "zh-CHS", "zh-CHT", "syr", "ku-Arab", "ha-Latn", "ff-Latn", "tzm-Latn", "iu-Latn",
 				"chr-Cher", "sd-Arab", "mn-Mong", "pa-Arab", "uz-Latn", "tg-Cyrl", "dsb", "smj",
