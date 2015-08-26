@@ -60,5 +60,5 @@
 	grunt.loadNpmTasks('grunt-express-server');
 
 	grunt.registerTask('dev', ['less:dev', 'express:dev', 'watch']);
-	grunt.registerTask('prod', ['less:prod', 'requirejs:compile', 'express:prod']);
+	grunt.registerTask('prod', ['less:prod', 'express:prod']);
 };
