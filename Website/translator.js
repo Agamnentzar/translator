@@ -15,7 +15,7 @@ var express = require('express')
 
 var app = express();
 var production = process.env.NODE_ENV === 'production';
-var staticContentAge = 0; // production ? (1000 * 3600 * 24 * 365) : 0;
+var staticContentAge = production ? (1000 * 3600 * 24 * 365) : 0;
 var admin = auth.admin;
 
 app.set('port', process.env.PORT || 8097);
