@@ -6,149 +6,149 @@ var model = require('../libs/model.js')
 var User = model.User
   , Set = model.Set;
 
-function getPersmissions(req) {
-  var permissions = [];
+function getPermissions(req) {
+	var permissions = [];
 
-  Object.keys(req.body.permissions || {}).forEach(function (id) {
-    permissions[permissions.length] = {
-      setId: id,
-      permissions: req.body.permissions[id]
-    };
-  });
+	Object.keys(req.body.permissions || {}).forEach(function (id) {
+		permissions.push({
+			setId: id,
+			permissions: req.body.permissions[id]
+		});
+	});
 
-  return permissions;
+	return permissions;
 }
 
 exports.index = function (req, res) {
-  User.find().sort('_id').exec(function (err, users) {
-    if (err)
-      return res.render('error', { error: err });
+	User.find().sort('_id').exec(function (err, users) {
+		if (err)
+			return res.render('error', { error: err });
 
-    res.render('users', { users: users });
-  });
+		res.render('users', { users: users });
+	});
 };
 
 exports.login = function (req, res) {
-  auth.login(res, req.body.email, req.body.password, function (err) {
-    if (err)
-      return res.render('login', { error: err, referer: req.body.referer });
+	auth.login(res, req.body.email, req.body.password, function (err) {
+		if (err)
+			return res.render('login', { error: err, referer: req.body.referer });
 
-    res.redirect(req.body.referer || '/');
-  });
+		res.redirect(req.body.referer || '/');
+	});
 };
 
 exports.logout = function (req, res) {
-  auth.logout(res, req.sessionId);
-  res.redirect('/');
+	auth.logout(res, req.sessionId);
+	res.redirect('/');
 };
 
 exports.add = function (req, res) {
-  Set.find({ deleted: { $ne: true } }, function (err, sets) {
-    if (err)
-      return res.render('error', { error: err });
+	Set.find({ deleted: { $ne: true } }, function (err, sets) {
+		if (err)
+			return res.render('error', { error: err });
 
-    res.render('user', { user: new User(), sets: sets, adding: true });
-  });
+		res.render('user', { user: new User(), sets: sets, adding: true });
+	});
 };
 
 exports.addPost = function (req, res) {
-  var user = new User();
-  user.name = req.body.name;
-  user.email = req.body.email;
-  user.notes = req.body.notes;
-  user.password = auth.hash(req.body.password);
-  user.permissions = getPersmissions(req);
+	var user = new User();
+	user.name = req.body.name;
+	user.email = req.body.email;
+	user.notes = req.body.notes;
+	user.password = auth.hash(req.body.password);
+	user.permissions = getPermissions(req);
 
-  var err = null;
+	var err = null;
 
-  if (req.body.password != req.body.password2)
-    err = 'passwords do not match';
+	if (req.body.password != req.body.password2)
+		err = 'passwords do not match';
 
-  if (err)
-    return res.render('user', { user: user, error: err, adding: true });
-  else if (!user.name)
-    err = 'name must not be empty';
-  else if (!user.email)
-    err = 'email must not be empty';
+	if (err)
+		return res.render('user', { user: user, error: err, adding: true });
+	else if (!user.name)
+		err = 'name must not be empty';
+	else if (!user.email)
+		err = 'email must not be empty';
 
-  user.save(function (err) {
-    if (err)
-      return res.render('error', { error: err });
+	user.save(function (err) {
+		if (err)
+			return res.render('error', { error: err });
 
-    res.redirect('/users');
-  })
+		res.redirect('/users');
+	})
 };
 
 exports.edit = function (req, res) {
-  if (!req.user.admin && !req.user._id.equals(req.params.id))
-    return res.redirect('/');
+	if (!req.user.admin && !req.user._id.equals(req.params.id))
+		return res.redirect('/');
 
-  Set.find({ deleted: { $ne: true } }, function (err1, sets) {
-    User.findById(req.params.id, function (err2, user) {
-      if (err1 || err2 || !user)
-        return res.render('error', { error: err1 || err2 || 'user not found' });
+	Set.find({ deleted: { $ne: true } }, function (err1, sets) {
+		User.findById(req.params.id, function (err2, user) {
+			if (err1 || err2 || !user)
+				return res.render('error', { error: err1 || err2 || 'user not found' });
 
-      res.render('user', { user: user, sets: sets, adding: false });
-    });
-  });
+			res.render('user', { user: user, sets: sets, adding: false });
+		});
+	});
 };
 
 exports.editPost = function (req, res) {
-  if (!req.user.admin && !req.user._id.equals(req.params.id))
-    return res.redirect('/');
+	if (!req.user.admin && !req.user._id.equals(req.params.id))
+		return res.redirect('/');
 
-  Set.find({ deleted: { $ne: true } }, function (err1, sets) {
-    User.findById(req.params.id, function (err2, user) {
-      if (err1 || err2 || !user)
-        return res.render('error', { error: err1 || err2 || 'user not found' });
+	Set.find({ deleted: { $ne: true } }, function (err1, sets) {
+		User.findById(req.params.id, function (err2, user) {
+			if (err1 || err2 || !user)
+				return res.render('error', { error: err1 || err2 || 'user not found' });
 
-      if (req.body.password)
-        user.password = auth.hash(req.body.password);
+			if (req.body.password)
+				user.password = auth.hash(req.body.password);
 
-      if (req.user.admin) {
-        user.name = req.body.name;
-        user.email = req.body.email;
-        user.permissions = getPersmissions(req);
-        user.notes = req.body.notes;
-      }
+			if (req.user.admin) {
+				user.name = req.body.name;
+				user.email = req.body.email;
+				user.permissions = getPermissions(req);
+				user.notes = req.body.notes;
+			}
 
-      var err = null;
+			var err = null;
 
-      if (req.body.password && req.body.password != req.body.password2)
-        err = 'passwords do not match';
-      else if (!user.name)
-        err = 'name must not be empty';
-      else if (!user.email)
-        err = 'email must not be empty';
+			if (req.body.password && req.body.password != req.body.password2)
+				err = 'passwords do not match';
+			else if (!user.name)
+				err = 'name must not be empty';
+			else if (!user.email)
+				err = 'email must not be empty';
 
-      if (err)
-        return res.render('user', { user: user, sets: sets, error: err, adding: false });
+			if (err)
+				return res.render('user', { user: user, sets: sets, error: err, adding: false });
 
-      user.save(function (err) {
-        if (err)
-          return res.render('error', { error: err });
+			user.save(function (err) {
+				if (err)
+					return res.render('error', { error: err });
 
-        auth.refresh();
-        res.redirect(req.user.admin ? '/users' : '/');
-      });
-    });
-  });
+				auth.refresh();
+				res.redirect(req.user.admin ? '/users' : '/');
+			});
+		});
+	});
 };
 
 exports.admin = function (req, res) {
-  User.findById(req.params.id, function (err, user) {
-    if (err || !user)
-      return res.render('error', { error: err || 'user not found' });
+	User.findById(req.params.id, function (err, user) {
+		if (err || !user)
+			return res.render('error', { error: err || 'user not found' });
 
-    user.admin = req.query.set == 'true';
-    user.save(function (err) {
-      if (err)
-        return res.render('error', { error: err });
+		user.admin = req.query.set == 'true';
+		user.save(function (err) {
+			if (err)
+				return res.render('error', { error: err });
 
-      res.redirect('/users');
-      auth.refresh();
-    });
-  });
+			res.redirect('/users');
+			auth.refresh();
+		});
+	});
 };
 
 exports.delete = utils.deleteItem(User, '/users');

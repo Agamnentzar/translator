@@ -240,14 +240,14 @@ exports.print = function (req, res) {
 		if (err || !set)
 			return res.send(err || 'no set');
 		
-		set.export(function (err, data) {
+		set.export(function (err, data, modified) {
 			if (err)
 				return res.send(err);
 
 			var ref = data[1].indexOf(req.query.ref);
 			var target = data[1].indexOf(req.query.target);
 
-			res.render('print', { data: data, ref: ref, target: target });
+			res.render('print', { data: data, modified: modified, ref: ref, target: target });
 		});
 	});
 };

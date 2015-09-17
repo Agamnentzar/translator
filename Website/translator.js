@@ -1,17 +1,17 @@
-var express = require('express')
-  , http = require('http')
-  , path = require('path')
-  , routes = require('./routes')
-  , users = require('./routes/users')
-  , sets = require('./routes/sets')
-  , snapshots = require('./routes/snapshots')
-  , changes = require('./routes/changes')
-  , api = require('./routes/api')
-  , tools = require('./routes/tools')
-  , auth = require('./libs/auth')
-  , cultures = require('./libs/cultures')
-  , timestamp = require('./libs/timestamp.js')
-;
+var express = require('express');
+var http = require('http');
+var path = require('path');
+var bodyParser = require('body-parser');
+var routes = require('./routes');
+var users = require('./routes/users');
+var sets = require('./routes/sets');
+var snapshots = require('./routes/snapshots');
+var changes = require('./routes/changes');
+var api = require('./routes/api');
+var tools = require('./routes/tools');
+var auth = require('./libs/auth');
+var cultures = require('./libs/cultures');
+var timestamp = require('./libs/timestamp.js');
 
 var app = express();
 var production = process.env.NODE_ENV === 'production';
@@ -19,14 +19,17 @@ var staticContentAge = production ? (1000 * 3600 * 24 * 365) : 0;
 var admin = auth.admin;
 
 app.set('port', process.env.PORT || 8097);
-app.set('views', __dirname + '/views');
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(express.favicon());
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.cookieParser('somesecretstringhere'));
-app.use(express.methodOverride());
+if (production)
+	app.use(require('compression')());
+
+app.use(require('serve-favicon')('favicon.ico'));
+app.use(require('morgan')('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(require('cookie-parser')('somesecretstringhere'));
 app.use(function (req, res, next) {
   var url = req.originalUrl;
   var index = url.substr(1).indexOf('/');
@@ -34,8 +37,6 @@ app.use(function (req, res, next) {
   res.locals.timestamp = timestamp;
   next();
 });
-app.use(app.router);
-app.use(express.compress());
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: staticContentAge }));
 app.use(express.static(path.join(__dirname, 'build'), { maxAge: staticContentAge }));
@@ -56,6 +57,7 @@ app.post('/api/add', auth, api.add);
 app.post('/api/move', auth, api.move);
 app.post('/api/delete', auth, api.delete);
 app.post('/api/changes', auth, api.changes);
+app.post('/api/clearModified', auth, api.clearModified);
 
 app.get('/users', admin, users.index);
 app.get('/users/add', admin, users.add);
@@ -83,7 +85,7 @@ app.get('/sets/new/:id', admin, sets.newVersion);
 app.post('/sets/new/:id', admin, sets.newVersionPost);
 app.get('/sets/version/delete/:id', admin, sets.deleteSnapshot);
 app.get('/sets/version/restore/:id', admin, sets.restoreSnapshot);
-app.get('/sets/print/:id', admin, sets.print);
+app.get('/sets/print/:id', auth, sets.print);
 
 app.get('/changes', admin, changes.index);
 

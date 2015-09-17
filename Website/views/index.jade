@@ -12,7 +12,7 @@ block content
 						li
 							a(href='#' data-id=s.id)=s.title
 			|  
-			input#search.input-sm.form-control(type='search' placeholder='search' autocomplete='off')
+			input#search.input-sm.form-control(type='search' placeholder='search' autocomplete='off' style="width: 120px;")
 			|  Reference: 
 			#lang-ref.btn-group
 				button.btn.btn-default.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
@@ -26,9 +26,11 @@ block content
 					span.caret
 				ul.dropdown-menu(role='menu')
 			|  
-			button.button-add.btn.btn-sm.btn-default Add
+			button.button-clear.btn.btn-sm.btn-default(title="Clear modified flags from target language") Clear
+			|  
+			button.button-add.btn.btn-sm.btn-default(title="Add new TAG") Add
 			| 
-			button.button-print.btn.btn-sm.btn-default Print
+			button.button-print.btn.btn-sm.btn-default(title="Print selected reference and target languages") Print
 			| 
 			button.button-changes.btn.btn-sm.btn-default
 				| Edit changelog for v
@@ -40,7 +42,8 @@ block content
 			strong=loggedInUser.name
 			a.btn.btn-sm.btn-danger(href='/logout') Sign Out
 			| 
-			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id)) Settings
+			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id) title='settings')
+				.fa.fa-lg.fa-cog
 
 		#scrollable-head(style='display:none')
 		#scrollable(style='display:none')

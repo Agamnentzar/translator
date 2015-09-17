@@ -18,6 +18,11 @@ html
 				padding: 5px;
 				white-space: pre-line;
 			}
+			.modified {
+				float: right;
+				font-weight: bold;
+				margin-left: 5px;
+			}
 	body
 		div
 			table
@@ -28,12 +33,18 @@ html
 						if target !== -1
 							th=data[0][target]
 				tbody
-					each row in data.slice(2)
+					each row, index in data.slice(2)
 						if (row[ref] || row[target])
 							tr
 								if ref !== -1
-									td=row[ref]
+									td
+										if modified[index + 2][ref]
+											.modified modified ✓
+										=row[ref]
 								if target !== -1
-									td=row[target]
+									td
+										if modified[index + 2][target]
+											.modified modified ✓
+										=row[target]
 	script.
 		print();

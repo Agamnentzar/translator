@@ -72,6 +72,7 @@ exports.get = function (req, res) {
             ts[ts.length] = termsMap[t.id] = {
               id: t.id,
               entries: new Array(langs.length),
+							modified: new Array(langs.length),
               e: new Array(langs.length)
             };
           });
@@ -84,7 +85,8 @@ exports.get = function (req, res) {
 
               if (langIndex !== -1) {
                 if (!t.e[langIndex] || t.e[langIndex].date < e.date) {
-                  t.entries[langIndex] = e.value;
+                	t.entries[langIndex] = e.value;
+                	t.modified[langIndex] = e.modified === true;
                   t.e[langIndex] = e;
                 }
               }
@@ -153,6 +155,7 @@ exports.set = function (req, res) {
       e.lang = lang;
       e.date = Date.now();
       e.value = req.body.value;
+      e.modified = true;
       e.save(function (err) {
         if (err)
           return res.json({ error: err });
@@ -250,4 +253,16 @@ exports.changes = function (req, res) {
         res.json({ success: true });
     })
   });
+};
+
+exports.clearModified = function (req, res) {
+	var setId = req.body.setId;
+	var lang = req.body.lang;
+
+	Entry.update({ setId: setId, lang: lang }, { $set: { modified: false } }, { multi: true }, function (err) {
+		if (err)
+			res.json({ error: err });
+		else
+			res.json({ success: true });
+	});
 };
