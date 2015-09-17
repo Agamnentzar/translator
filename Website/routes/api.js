@@ -47,10 +47,19 @@ function move(setId, termId, refId, place, callback) {
   });
 }
 
+function createArray(length, value) {
+	var result = [];
+
+	for (var i = 0; i < length; i++)
+		result.push(value);
+
+	return result;
+}
+
 exports.get = function (req, res) {
   User.find(function (err, users) {
     if (err)
-      return res.json({ error: err });
+    	return res.json({ error: err });
 
     Set.findById(req.query.setId, function (err, set) {
       if (err || !set)
@@ -71,8 +80,8 @@ exports.get = function (req, res) {
           terms.forEach(function (t) {
             ts[ts.length] = termsMap[t.id] = {
               id: t.id,
-              entries: new Array(langs.length),
-							modified: new Array(langs.length),
+              entries: createArray(langs.length, null),
+              modified: createArray(langs.length, false),
               e: new Array(langs.length)
             };
           });
