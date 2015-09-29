@@ -58,6 +58,7 @@ app.post('/api/move', auth, api.move);
 app.post('/api/delete', auth, api.delete);
 app.post('/api/changes', auth, api.changes);
 app.post('/api/clearModified', auth, api.clearModified);
+app.post('/api/setLengthLimit', auth, api.setLengthLimit);
 
 app.get('/users', admin, users.index);
 app.get('/users/add', admin, users.add);

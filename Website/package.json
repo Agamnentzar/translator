@@ -16,10 +16,12 @@
     "serve-favicon": "^2.3.0"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-clean": "^0.6.0",
-    "grunt-contrib-less": "^1.0.1",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-express-server": "^0.5.1"
+    "gulp": "^3.9.0",
+    "gulp-if": "^1.2.5",
+    "gulp-live-server": "0.0.28",
+    "gulp-minify-css": "^1.2.1",
+    "gulp-sass": "^2.0.4",
+    "gulp-sourcemaps": "^1.6.0",
+    "run-sequence": "^1.1.4"
   }
 }

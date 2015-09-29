@@ -13,7 +13,12 @@ $.postJSON = function (url, data, success, error) {
 	var langDropdowns = null;
 	var doNotRefresh = false;
 	var rowHtml = $('<div class="row"></div>');
-	var cellHtml = $('<div class="cell edit"><span class="label label-success modified-tag">modified <i class="fa fa-check"></i></span><div></div></div>');
+	var cellHtml = $(
+		'<div class="cell edit">' +
+			'<span class="label label-success modified-tag">modified <i class="fa fa-check"></i></span>' +
+			'<span class="label label-default length-tag" title="maximum length"></span>' +
+			'<div></div>' +
+		'</div>');
 
 	function refreshView() {
 		viewRef = data.langIds.indexOf(localStorage.ref);
@@ -112,7 +117,12 @@ $.postJSON = function (url, data, success, error) {
 				cell.data({ term: term.id, lang: i })
 				 .toggleClass('key', i === 0)
 				 .toggleClass('edit', p[i])
-				 .toggleClass('modified', term.modified[i]);
+				 .toggleClass('modified', term.modified[i])
+				 .toggleClass('too-long', !!(i > 0 && term.lengthLimit && e && e.length > term.lengthLimit));
+
+				if (term.lengthLimit && i === 0)
+					cell.addClass('length').find('.length-tag').text('max ' + term.lengthLimit);
+
 				cell.children().last().text(e);
 				cell.appendTo(row);
 			}
@@ -292,6 +302,8 @@ $.postJSON = function (url, data, success, error) {
 	}
 
 	function setValue(termId, lang, value) {
+		var term = data.terms[getTermIndex(termId)];
+
 		$.postJSON('/api/set', { termId: termId, lang: lang, value: value }, function (e) {
 			var i, terms = data.terms;
 			var langIndex = data.langIds.indexOf(lang);
@@ -317,6 +329,7 @@ $.postJSON = function (url, data, success, error) {
 				.removeClass('changing')
 				.addClass('changed')
 				.addClass('modified')
+				.toggleClass('too-long', !!(langIndex > 0 && term.lengthLimit && value && value.length > term.lengthLimit))
     		.children().last().text(value);
 			refreshCounters();
 			checkDuplicates();
@@ -532,6 +545,29 @@ $.postJSON = function (url, data, success, error) {
 
 			editor.find('.button-ok').on('mousedown', function () {
 				area.blur();
+			});
+
+			editor.find('.button-length').on('mousedown', function () {
+				var term = data.terms[getTermIndex(termId)];
+				var maxLength = prompt('enter max length (leave empty for not restriction)', term.lengthLimit || '');
+
+				if (maxLength !== null) {
+					var value = maxLength | 0;
+
+					if (term.lengthLimit !== value) {
+						$.postJSON('/api/setLengthLimit', { termId, termId, lengthLimit: value }, function (result) {
+							if (result.error)
+								return console.log(result.error);
+
+							term.lengthLimit = value;
+							cell.toggleClass('length', !!term.lengthLimit).find('.length-tag').text('max ' + term.lengthLimit);
+							cell.parent().find('.cell:not(.key)').each(function () {
+								var text = $(this).children().last().text();
+								$(this).toggleClass('too-long', !!(term.lengthLimit && text && text.length > term.lengthLimit))
+							});
+						});
+					}
+				}
 			});
 
 			area.val(text).width(w).height(h).focus().blur(function () {

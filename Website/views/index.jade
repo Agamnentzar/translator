@@ -2,35 +2,36 @@ extends layout
 
 block content
 	#translator(data-permissions=JSON.stringify(loggedInUser.permissions))
-		#controls(style='visibility: hidden')
+		#controls(style="visibility: hidden")
 			#dropdown-set.btn-group
-				button.btn.btn-primary.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
+				button.btn.btn-primary.btn-sm.dropdown-toggle(type="button" data-toggle="dropdown")
 					span.value
 					span.caret
-				ul.dropdown-menu(role='menu')
+				ul.dropdown-menu(role="menu")
 					each s in sets
 						li
-							a(href='#' data-id=s.id)=s.title
+							a(href="#" data-id=s.id)=s.title
 			|  
-			input#search.input-sm.form-control(type='search' placeholder='search' autocomplete='off' style="width: 120px;")
+			input#search.input-sm.form-control(type="search" placeholder="search" autocomplete="off" style="width: 120px;")
 			|  Reference: 
 			#lang-ref.btn-group
-				button.btn.btn-default.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
+				button.btn.btn-default.btn-sm.dropdown-toggle(type="button" data-toggle="dropdown")
 					span.value
 					span.caret
-				ul.dropdown-menu(role='menu')
+				ul.dropdown-menu(role="menu")
 			|  Target: 
 			#lang-target.btn-group
-				button.btn.btn-default.btn-sm.dropdown-toggle(type='button' data-toggle='dropdown')
+				button.btn.btn-default.btn-sm.dropdown-toggle(type="button" data-toggle="dropdown")
 					span.value
 					span.caret
-				ul.dropdown-menu(role='menu')
+				ul.dropdown-menu(role="menu")
 			|  
 			button.button-clear.btn.btn-sm.btn-default(title="Clear modified flags from target language") Clear
 			|  
 			button.button-add.btn.btn-sm.btn-default(title="Add new TAG") Add
 			| 
-			button.button-print.btn.btn-sm.btn-default(title="Print selected reference and target languages") Print
+			button.button-print.btn.btn-sm.btn-default(title="Print selected reference and target languages")
+				i.fa.fa-lg.fa-print
 			| 
 			button.button-changes.btn.btn-sm.btn-default
 				| Edit changelog for v
@@ -40,20 +41,21 @@ block content
 
 		#user
 			strong=loggedInUser.name
-			a.btn.btn-sm.btn-danger(href='/logout') Sign Out
+			a.btn.btn-sm.btn-danger(href="/logout" title="Sign Out")
+				.fa.fa-lg.fa-sign-out
 			| 
-			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id) title='settings')
+			a.btn.btn-sm.btn-default(href=loggedInUser.admin ? '/users' : ('/users/edit/' + loggedInUser.id) title="Settings")
 				.fa.fa-lg.fa-cog
 
-		#scrollable-head(style='display:none')
-		#scrollable(style='display:none')
-		#loading(style='display:none')
+		#scrollable-head(style="display:none")
+		#scrollable(style="display:none")
+		#loading(style="display:none")
 			div
 				div
 					div
 						div LOADING...
-		
-		#templates(style='display:none')
+
+		#templates(style="display:none")
 			#editor-template
 				.editor
 					.editor-controls
@@ -65,31 +67,34 @@ block content
 						| 
 						button.btn.btn-xs.btn-success.button-ok ok
 					.editor-controls-key
-						button.btn.btn-xs.btn-danger.button-delete delete
+						button.btn.btn-xs.btn-danger.button-delete(title="delete")
+							i.fa.fa-trash
 						| 
 						button.btn.btn-xs.btn-default.button-add-above add
 						| 
 						button.btn.btn-xs.btn-default.button-move move
+						| 
+						button.btn.btn-xs.btn-default.button-length length
 					textarea
 
 			#firstcell-template
 				.cell
-					button.btn.btn-sm.btn-default.button-cancel-moving(style='display:none') cancel moving
+					button.btn.btn-sm.btn-default.button-cancel-moving(style="display:none") cancel moving
 
 			#counters-template
 				.cell
-					abbr(title='words') WR
+					abbr(title="words") WR
 					| : 
 					span.counter-words
 					br
-					abbr(title='characters (no space)') CN
+					abbr(title="characters (no space)") CN
 					| : 
 					span.counter-chars
 					br
-					abbr(title='characters (with space)') CW
+					abbr(title="characters (with space)") CW
 					| : 
 					span.counter-allchars
 					br
-	
+
 block scripts
 	script(src="/scripts/translator.js?" + timestamp)

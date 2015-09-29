@@ -116,6 +116,7 @@ setSchema.methods.export = function (callback) {
 var termSchema = new Schema({
 	setId: ObjectId,
 	order: Number,
+	lengthLimit: Number,
 	date: Date,
 	userId: ObjectId,
 	deleted: Boolean,

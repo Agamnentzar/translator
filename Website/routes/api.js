@@ -56,6 +56,15 @@ function createArray(length, value) {
 	return result;
 }
 
+function jsonResult(res) {
+	return function (err) {
+		if (err)
+			res.json({ error: err });
+		else
+			res.json({ success: true });
+	};
+}
+
 exports.get = function (req, res) {
   User.find(function (err, users) {
     if (err)
@@ -79,7 +88,8 @@ exports.get = function (req, res) {
 
           terms.forEach(function (t) {
             ts[ts.length] = termsMap[t.id] = {
-              id: t.id,
+            	id: t.id,
+							lengthLimit: t.lengthLimit | 0,
               entries: createArray(langs.length, null),
               modified: createArray(langs.length, false),
               e: new Array(langs.length)
@@ -95,7 +105,7 @@ exports.get = function (req, res) {
               if (langIndex !== -1) {
                 if (!t.e[langIndex] || t.e[langIndex].date < e.date) {
                 	t.entries[langIndex] = e.value;
-                	t.modified[langIndex] = e.modified === true;
+                	t.modified[langIndex] = langIndex !== 0 && e.modified === true;
                   t.e[langIndex] = e;
                 }
               }
@@ -217,11 +227,7 @@ exports.move = function (req, res) {
   if (!req.user.can('add', req.body.setId))
     return res.json({ error: 'access denied' });
 
-  move(req.body.setId, req.body.termId, req.body.refId, req.body.place, function (err) {
-    if (err)
-      return res.json({ error: err });
-    res.json({ success: true });
-  });
+  move(req.body.setId, req.body.termId, req.body.refId, req.body.place, jsonResult(res));
 };
 
 exports.delete = function (req, res) {
@@ -234,12 +240,7 @@ exports.delete = function (req, res) {
 
     term.deleted = true;
     term.deletedDate = Date.now();
-    term.save(function (err) {
-      if (err)
-        return res.json({ error: err });
-
-      res.json({ success: true });
-    });
+    term.save(jsonResult(res));
   });
 };
 
@@ -255,12 +256,7 @@ exports.changes = function (req, res) {
       return res.json({ error: err });
 
     set.changes = changes;
-    set.save(function (err) {
-      if (err)
-        res.json({ error: err });
-      else
-        res.json({ success: true });
-    })
+    set.save(jsonResult(res));
   });
 };
 
@@ -268,10 +264,18 @@ exports.clearModified = function (req, res) {
 	var setId = req.body.setId;
 	var lang = req.body.lang;
 
-	Entry.update({ setId: setId, lang: lang }, { $set: { modified: false } }, { multi: true }, function (err) {
+	Entry.update({ setId: setId, lang: lang }, { $set: { modified: false } }, { multi: true }, jsonResult(res));
+};
+
+exports.setLengthLimit = function (req, res) {
+	var termId = req.body.termId;
+	var lengthLimit = req.body.lengthLimit | 0;
+
+	Term.findById(termId, function (err, doc) {
 		if (err)
-			res.json({ error: err });
-		else
-			res.json({ success: true });
+			return res.json({ error: err });
+
+		doc.lengthLimit = lengthLimit;
+		doc.save(jsonResult(res));
 	});
 };
