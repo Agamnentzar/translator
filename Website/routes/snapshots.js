@@ -79,7 +79,7 @@ function findVmtById(id, req, res) {
         if (/_start$/.test(k))
           v = v.replace(/^\s*([0-9]+\.) ?(.+)$/mg, '$1 \\>$2\\<');
 
-        v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        v = v.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\r/g, '');
 
         lines[i] = k + ' ' + v;
       }
