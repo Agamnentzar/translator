@@ -26,7 +26,9 @@ if (production)
 	app.use(require('compression')());
 
 app.use(require('serve-favicon')('favicon.ico'));
-app.use(require('morgan')('dev'));
+app.use(require('morgan')('dev', {
+	skip: function (req, res) { return res.statusCode < 400; }
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(require('cookie-parser')('somesecretstringhere'));
