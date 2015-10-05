@@ -555,7 +555,7 @@ $.postJSON = function (url, data, success, error) {
 					var value = maxLength | 0;
 
 					if (term.lengthLimit !== value) {
-						$.postJSON('/api/setLengthLimit', { termId, termId, lengthLimit: value }, function (result) {
+						$.postJSON('/api/setLengthLimit', { termId: termId, lengthLimit: value }, function (result) {
 							if (result.error)
 								return console.log(result.error);
 
