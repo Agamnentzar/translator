@@ -358,6 +358,7 @@ $.postJSON = function (url, data, success, error) {
 				return console.log(term.error);
 
 			term.entries = new Array(data.langIds.length);
+			term.modified = [];
 
 			for (var i = 0; i < term.entries.length; i++)
 				term.entries[i] = '';
