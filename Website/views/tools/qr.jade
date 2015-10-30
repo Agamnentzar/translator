@@ -2,19 +2,19 @@ extends ../layout
 
 block content
 	#page
-		form.form-horizontal(action='', method='post', role='form')
+		form.form-horizontal(action='' method='post' role='form')
 			.form-group
 				h2.col-sm-offset-4.col-sm-8 QR Code Generator
 			.form-group
 				label.col-sm-4.control-label(for='inputCodes') Range
 				.col-sm-8.form-inline
-					input#from.form-control.input-sm(type='number', step=1, min=0, placeholder='from', style='width: 150px')
-					input#to.form-control.input-sm(type='number', step=1, min=0, placeholder='to', style='width: 150px')
+					input#from.form-control.input-sm(type='number' step=1 min=0 placeholder='from' style='width: 150px')
+					input#to.form-control.input-sm(type='number' step=1 min=0 placeholder='to' style='width: 150px')
 					button#add.btn.btn-default.btn-sm Add
 			.form-group
 				label.col-sm-4.control-label(for='inputCodes') Codes
 				.col-sm-8
-					textarea#inputCodes.form-control(name='codes', rows=20, required)
+					textarea#inputCodes.form-control(name='codes' rows=20 required)
 			.form-group
 				.col-sm-offset-4.col-sm-8
 					button.btn.btn-primary(type='submit') Generate

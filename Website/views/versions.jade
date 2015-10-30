@@ -42,7 +42,7 @@ block pageContent
 					td
 					td=s.version
 					td
-						time(pubdate=s.date)=s.date
+						time(pubdate=s.date.toISOString())=s.date.toString()
 					td=s.id.substr(-4)
 					td=s.changes
 					td.commands
