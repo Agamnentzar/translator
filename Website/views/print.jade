@@ -23,6 +23,15 @@ html
 				font-weight: bold;
 				margin-left: 5px;
 			}
+			.footer {
+				margin-top: 100px;
+				padding-bottom: 60px;
+				border-bottom: solid 1px #aaa;
+				font-size: small;
+			}
+			.pull-right {
+				float: right;
+			}
 	body
 		div
 			table
@@ -48,5 +57,11 @@ html
 											.modified modified ✓
 										=row[target]
 								td ⬚
+
+		.footer.pull-right(style="width: 20%;")
+			| Date
+		.footer(style="width: 65%;")
+			| Test performed by (Name, Signature)
+
 	script.
 		print();
