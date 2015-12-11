@@ -247,7 +247,7 @@ exports.print = function (req, res) {
 			var ref = data[1].indexOf(req.query.ref);
 			var target = data[1].indexOf(req.query.target);
 
-			res.render('print', { data: data, modified: modified, ref: ref, target: target });
+			res.render('print', { set: set, data: data, modified: modified, ref: ref, target: target });
 		});
 	});
 };

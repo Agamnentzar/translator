@@ -2,7 +2,7 @@
 html
 	head
 		meta(charset='utf-8')
-		title Verity Translator
+		title #{set.title}, database revision level: #{set.version}
 		style.
 			table {
 				width: 100%;
@@ -32,19 +32,21 @@ html
 							th=data[0][ref]
 						if target !== -1
 							th=data[0][target]
+						th ✓
 				tbody
 					each row, index in data.slice(2)
 						if (row[ref] || row[target])
 							tr
 								if ref !== -1
 									td
-										if modified[index + 2][ref]
+										//-if modified[index + 2][ref]
 											.modified modified ✓
 										=row[ref]
 								if target !== -1
 									td
-										if modified[index + 2][target]
+										//-if modified[index + 2][target]
 											.modified modified ✓
 										=row[target]
+								td ⬚
 	script.
 		print();
