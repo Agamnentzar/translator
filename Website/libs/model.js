@@ -2,9 +2,10 @@
   , cultures = require('./cultures')
   , utils = require('./utils')
   , Schema = mongoose.Schema
-  , ObjectId = mongoose.Schema.Types.ObjectId;
+  , ObjectId = mongoose.Schema.Types.ObjectId
+  , config = require('../config.json');
 
-mongoose.connect('mongodb://localhost/verity-translations', { user: 'verity', pass: 'veritypass' });
+mongoose.connect(config.db.uri, config.db.options);
 
 var sessionSchema = new Schema({
 	sessionId: String,
