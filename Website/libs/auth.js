@@ -47,7 +47,7 @@ module.exports.admin = function (req, res, next) {
 };
 
 module.exports.init = function (callback) {
-  Session.find(function (err, ss) {
+	Session.find({}, function (err, ss) {
     if (!err) {
       ss.forEach(function (s) {
         sessions[s.sessionId] = {
