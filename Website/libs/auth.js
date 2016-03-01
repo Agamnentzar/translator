@@ -47,23 +47,34 @@ module.exports.admin = function (req, res, next) {
 };
 
 module.exports.init = function (callback) {
-	Session.find({}, function (err, ss) {
-    if (!err) {
-      ss.forEach(function (s) {
-        sessions[s.sessionId] = {
-          dbo: s,
-          user: null,
-          userId: s.userId,
-          sessionId: s.sessionId
-        };
-      });
+	User.find({}, function (err, users) {
+		// create default user
+		if (!err && users.length === 0) {
+			User.create({
+				name: 'Admin',
+				email: 'admin@admin.com',
+				password: 'd033e22ae348aeb5660fc2140aec35850c4da997',
+			});
+		}
 
-      module.exports.refresh();
-    }
+		Session.find({}, function (err, ss) {
+			if (!err) {
+				ss.forEach(function (s) {
+					sessions[s.sessionId] = {
+						dbo: s,
+						user: null,
+						userId: s.userId,
+						sessionId: s.sessionId
+					};
+				});
 
-    if (callback)
-      callback(err);
-  });
+				module.exports.refresh();
+			}
+
+			if (callback)
+				callback(err);
+		});
+	});
 };
 
 module.exports.refresh = function () {
