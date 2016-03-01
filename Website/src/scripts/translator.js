@@ -328,7 +328,7 @@ $.postJSON = function (url, data, success, error) {
 			getCell(termId, langIndex)
 				.removeClass('changing')
 				.addClass('changed')
-				.addClass('modified')
+				.toggleClass('modified', langIndex !== 0)
 				.toggleClass('too-long', !!(langIndex > 0 && term.lengthLimit && value && value.length > term.lengthLimit))
     		.children().last().text(value);
 			refreshCounters();
