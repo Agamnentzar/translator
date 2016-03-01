@@ -241,8 +241,8 @@ exports.print = function (req, res) {
 			return res.send(err || 'no set');
 		
 		set.export(function (err, data, modified) {
-			if (err)
-				return res.send(err);
+			if (err || (data.length < 2))
+				return res.send(err || 'missing data');
 
 			var ref = data[1].indexOf(req.query.ref);
 			var target = data[1].indexOf(req.query.target);
