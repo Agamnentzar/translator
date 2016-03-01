@@ -204,6 +204,7 @@ exports.getNg = function (req, res) {
 			}
 
 			res.charset = 'utf-8';
+			res.set('Content-Type', 'application/javascript');
 			res.send(JSON.stringify(output, null, 2));
 		});
 	});
