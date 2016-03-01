@@ -6,6 +6,7 @@ Put config.json file in this directory
 
 ```json
 {
+  "port": 1234,
 	"db": {
 		"uri": "mongodb://...",
 		"options": {

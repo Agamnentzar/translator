@@ -12,13 +12,14 @@ var tools = require('./routes/tools');
 var auth = require('./libs/auth');
 var cultures = require('./libs/cultures');
 var timestamp = require('./libs/timestamp.js');
+var config = require('./config.json');
 
 var app = express();
 var production = process.env.NODE_ENV === 'production';
 var staticContentAge = production ? (1000 * 3600 * 24 * 365) : 0;
 var admin = auth.admin;
 
-app.set('port', process.env.PORT || 8097);
+app.set('port', process.env.PORT || config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
