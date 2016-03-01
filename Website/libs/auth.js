@@ -50,11 +50,12 @@ module.exports.init = function (callback) {
 	User.find({}, function (err, users) {
 		// create default user
 		if (!err && users.length === 0) {
-			User.create({
+			var user = User.create({
 				name: 'Admin',
 				email: 'admin@admin.com',
 				password: 'd033e22ae348aeb5660fc2140aec35850c4da997',
 			});
+			user.save();
 		}
 
 		Session.find({}, function (err, ss) {
