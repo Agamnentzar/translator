@@ -204,7 +204,7 @@ exports.getNg = function (req, res) {
 			}
 
 			res.charset = 'utf-8';
-			res.json(output);
+			res.send(JSON.stringify(output, null, 2));
 		});
 	});
 };
