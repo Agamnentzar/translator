@@ -48,16 +48,6 @@ module.exports.admin = function (req, res, next) {
 
 module.exports.init = function (callback) {
 	User.find({}, function (err, users) {
-		// create default user
-		if (!err && users.length === 0) {
-			var user = User.create({
-				name: 'Admin',
-				email: 'admin@admin.com',
-				password: 'd033e22ae348aeb5660fc2140aec35850c4da997',
-			});
-			user.save();
-		}
-
 		Session.find({}, function (err, ss) {
 			if (!err) {
 				ss.forEach(function (s) {
@@ -83,6 +73,7 @@ module.exports.refresh = function () {
     if (err)
       return console.log(err);
 
+		// Create default users
     if (users.length === 0) {
       var admin = new User();
       admin.name = 'Admin';
