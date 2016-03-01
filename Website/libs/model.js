@@ -2,10 +2,7 @@
   , cultures = require('./cultures')
   , utils = require('./utils')
   , Schema = mongoose.Schema
-  , ObjectId = mongoose.Schema.Types.ObjectId
-  , config = require('../config.json');
-
-mongoose.connect(config.db.uri, config.db.options);
+  , ObjectId = mongoose.Schema.Types.ObjectId;
 
 var sessionSchema = new Schema({
 	sessionId: String,

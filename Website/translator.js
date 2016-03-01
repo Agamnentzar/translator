@@ -2,6 +2,11 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
+var config = require('./config.json');
+
+mongoose.connect(config.db.uri, config.db.options);
+
 var routes = require('./routes');
 var users = require('./routes/users');
 var sets = require('./routes/sets');
@@ -12,7 +17,6 @@ var tools = require('./routes/tools');
 var auth = require('./libs/auth');
 var cultures = require('./libs/cultures');
 var timestamp = require('./libs/timestamp.js');
-var config = require('./config.json');
 
 var app = express();
 var production = process.env.NODE_ENV === 'production';
