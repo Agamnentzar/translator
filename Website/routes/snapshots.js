@@ -185,3 +185,26 @@ exports.latestH = function (req, res) {
     findHById(id, req, res);
   });
 };
+
+exports.getNg = function (req, res) {
+	Set.findOne({ devices: { $in: [req.params.device] }, name: req.params.name }, function (err, set) {
+		if (err || !set)
+			return res.json({ error: err || 'set not found' });
+
+		set.export(function (err, data) {
+			if (err)
+				return res.json({ error: err });
+
+			var output = {};
+			var lang = req.params.lang.replace(/\..+$/, '');
+			var langIndex = data[1].indexOf(lang);
+
+			for (var i = 0; i < data.length; i++) {
+				output[data[i][0]] = data[i][langIndex];
+			}
+
+			res.charset = 'utf-8';
+			res.json(output);
+		});
+	});
+};
