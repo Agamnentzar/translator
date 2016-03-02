@@ -200,7 +200,9 @@ exports.getNg = function (req, res) {
 			var langIndex = data[1].indexOf(lang);
 
 			for (var i = 0; i < data.length; i++) {
-				output[data[i][0]] = data[i][langIndex];
+				if (data[i][langIndex]) {
+					output[data[i][0]] = data[i][langIndex];
+				}
 			}
 
 			res.charset = 'utf-8';
