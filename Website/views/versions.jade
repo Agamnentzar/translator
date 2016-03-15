@@ -44,7 +44,7 @@ block pageContent
 					td
 						time(pubdate=s.date.toISOString())=s.date.toString()
 					td=s.id.substr(-4)
-					td=s.changes
+					td.text-pre-line=s.changes
 					td.commands
 						if s.deleted
 							a.btn.btn-xs.btn-default(href='/sets/version/restore/' + s.id) Restore

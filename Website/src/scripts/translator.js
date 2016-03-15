@@ -117,7 +117,7 @@ $.postJSON = function (url, data, success, error) {
 				cell.data({ term: term.id, lang: i })
 				 .toggleClass('key', i === 0)
 				 .toggleClass('edit', p[i])
-				 .toggleClass('modified', term.modified[i])
+				 .toggleClass('modified', !!term.modified[i])
 				 .toggleClass('too-long', !!(i > 0 && term.lengthLimit && e && e.length > term.lengthLimit));
 
 				if (term.lengthLimit && i === 0)

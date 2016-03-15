@@ -125,7 +125,7 @@ module.exports.login = function (res, email, password, callback) {
         return callback(err, null);
 
       sessions[id] = { id: id, user: user, userId: user.id, dbo: s };
-      res.cookie('sessionId', id);
+      res.cookie('sessionId', id, { expires: new Date(Date.now() + (1000 * 3600 * 24 * 30)) });
       callback(null, sessions[id]);
     });
   });

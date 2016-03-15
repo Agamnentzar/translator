@@ -1,12 +1,10 @@
-﻿var gulp = require('gulp')
-	, sass = require('gulp-sass')
-	, gulpif = require('gulp-if')
-	, minifyCSS = require('gulp-minify-css')
-	, sourcemaps = require('gulp-sourcemaps')
-	, runSequence = require('run-sequence')
-	, liveServer = require('gulp-live-server')
-;
-
+﻿var gulp = require('gulp');
+var sass = require('gulp-sass');
+var gulpif = require('gulp-if');
+var minifyCSS = require('gulp-minify-css');
+var sourcemaps = require('gulp-sourcemaps');
+var runSequence = require('run-sequence');
+var liveServer = require('gulp-live-server');
 var dev = true;
 
 gulp.task('set-prod', function () {
