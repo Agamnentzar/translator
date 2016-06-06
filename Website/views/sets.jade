@@ -40,11 +40,12 @@ block pageContent
 								a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
 								a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) Export
 								a.btn.btn-sm.btn-default(href='/sets/clone/' + s.id) Clone
+								a.btn.btn-sm.btn-default.confirm(href='/sets/clean/' + s.id title="Remove empty terms") Clean
 								.dropdown.btn-group
 									a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
 										| Copy to 
 										span.caret
-									ul.dropdown-menu
+									ul.dropdown-menu.pull-right
 										each set in sets
 											if set !== s
 												li(class=set.deleted ? 'deleted' : '')

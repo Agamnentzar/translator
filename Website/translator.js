@@ -94,6 +94,7 @@ app.post('/sets/new/:id', admin, sets.newVersionPost);
 app.get('/sets/version/delete/:id', admin, sets.deleteSnapshot);
 app.get('/sets/version/restore/:id', admin, sets.restoreSnapshot);
 app.get('/sets/copy/:from/:to', admin, sets.copy);
+app.get('/sets/clean/:id', admin, sets.clearEmpty);
 app.get('/sets/print/:id', auth, sets.print);
 
 app.get('/changes', admin, changes.index);

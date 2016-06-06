@@ -169,6 +169,12 @@ exports.copy = function (req, res) {
 		.catch(error => res.render('error', { error }));
 };
 
+exports.clearEmpty = function (req, res) {
+	model.clearEmptyTerms(req.params.id)
+		.then(() => res.redirect('/sets'))
+		.catch(error => res.render('error', { error }));
+};
+
 exports.versions = function (req, res) {
 	Set.findById(req.params.id, function (err1, set) {
 		Snapshot.find({ setId: set._id }).sort('-date').exec(function (err2, snapshots) {

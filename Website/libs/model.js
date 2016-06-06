@@ -268,3 +268,20 @@ exports.copySet = function (fromId, toId) {
 			}));
 	});
 };
+
+exports.clearEmptyTerms = function (setId) {
+	return Promise.all([
+		Term.find({ setId: setId, deleted: { $ne: true } }).exec(),
+		Entry.find({ setId: setId, deleted: { $ne: true }, lang: 'key' }).exec(),
+	]).spread((terms, entries) => {
+		return Promise.map(terms, term => {
+			var key = entries.find(e => e.termId.equals(term.id));
+
+			if (!key) {
+				term.deleted = true;
+				term.deletedDate = Date.now();
+				return term.save();
+			}
+		});
+	});
+};
