@@ -32,11 +32,22 @@ block pageContent
 							if c
 								img.flag(src=c.flag, title=c.name)
 					td.commands
-						if s.deleted
-							a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
-						else
-							a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
-							a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
-							a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) Export
-							a.btn.btn-sm.btn-default(href='/sets/clone/' + s.id) Clone
-							a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id) Delete
+						.btn-group-sm(role="group")
+							if s.deleted
+								a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
+							else
+								a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
+								a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
+								a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) Export
+								a.btn.btn-sm.btn-default(href='/sets/clone/' + s.id) Clone
+								.dropdown.btn-group
+									a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
+										| Copy to 
+										span.caret
+									ul.dropdown-menu
+										each set in sets
+											if set !== s
+												li(class=set.deleted ? 'deleted' : '')
+													a.confirm(href='/sets/copy/' + s.id + '/' + set.id)
+														=set.title
+								a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id) Delete

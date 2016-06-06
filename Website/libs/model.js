@@ -1,4 +1,5 @@
-﻿var mongoose = require('mongoose')
+var mongoose = require('mongoose')
+	, Promise = require('bluebird')
   , cultures = require('./cultures')
   , utils = require('./utils')
   , Schema = mongoose.Schema
@@ -221,5 +222,51 @@ exports.cloneSet = function (id, name, title, langs, callback) {
 				});
 			});
 		});
+	});
+};
+
+exports.copySet = function (fromId, toId) {
+	return Promise.all([
+		Set.findById(fromId).exec(),
+		Set.findById(toId).exec(),
+		Term.find({ setId: fromId, deleted: { $ne: true } }).exec(),
+		Entry.find({ setId: fromId, deleted: { $ne: true } }).exec(),
+		Term.findOne({ setId: toId, deleted: { $ne: true } }).sort({ order: -1 }).exec(),
+	]).spread((from, to, terms, entries, maxOrderTerm) => {
+		if (!from || !to || !terms || !entries) {
+			throw new Error('item not found');
+		}
+
+		console.log(terms.length + ' terms');
+		console.log(entries.length + ' entries');
+
+		to.langs = to.langs.concat(from.langs.filter(l => to.langs.indexOf(l) === -1));
+
+		var termIds = {};
+		var maxOrder = maxOrderTerm.order + 1;
+
+		return to.save()
+			.then(() => Promise.map(terms, t => {
+				var term = new Term();
+				term.setId = to.id;
+				term.order = t.order + maxOrder;
+				term.date = t.date;
+				term.userId = t.userId;
+				return term.save().then(tt => termIds[t.id] = tt.id);
+			}))
+			.then(() => Promise.map(entries, e => {
+				if (!termIds[e.termId]) {
+					throw new Error('missing term ID');
+				}
+
+				var entry = new Entry();
+				entry.setId = to.id;
+				entry.termId = termIds[e.termId];
+				entry.userId = e.userId;
+				entry.lang = e.lang;
+				entry.date = e.date;
+				entry.value = e.value;
+				return entry.save();
+			}));
 	});
 };

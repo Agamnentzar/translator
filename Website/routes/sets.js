@@ -163,6 +163,12 @@ exports.clonePost = function (req, res) {
 	});
 };
 
+exports.copy = function (req, res) {
+	model.copySet(req.params.from, req.params.to)
+		.then(() => res.redirect('/sets'))
+		.catch(error => res.render('error', { error }));
+};
+
 exports.versions = function (req, res) {
 	Set.findById(req.params.id, function (err1, set) {
 		Snapshot.find({ setId: set._id }).sort('-date').exec(function (err2, snapshots) {
