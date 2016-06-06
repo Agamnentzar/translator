@@ -255,18 +255,16 @@ exports.copySet = function (fromId, toId) {
 				return term.save().then(tt => termIds[t.id] = tt.id);
 			}))
 			.then(() => Promise.map(entries, e => {
-				if (!termIds[e.termId]) {
-					throw new Error('missing term ID');
+				if (termIds[e.termId]) {
+					var entry = new Entry();
+					entry.setId = to.id;
+					entry.termId = termIds[e.termId];
+					entry.userId = e.userId;
+					entry.lang = e.lang;
+					entry.date = e.date;
+					entry.value = e.value;
+					return entry.save();
 				}
-
-				var entry = new Entry();
-				entry.setId = to.id;
-				entry.termId = termIds[e.termId];
-				entry.userId = e.userId;
-				entry.lang = e.lang;
-				entry.date = e.date;
-				entry.value = e.value;
-				return entry.save();
 			}));
 	});
 };
