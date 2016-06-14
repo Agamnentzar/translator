@@ -31,12 +31,12 @@ block pageContent
 							- var c = cultures.get(l)
 							if c
 								img.flag(src=c.flag title=c.name)
-					td.commands
+					td.commands(style="width: 370px;")
 						.btn-group-sm(role="group")
 							if s.deleted
 								a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
 							else
-								.btn-group
+								.btn-group.text-nobr
 									a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
 									a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
 									a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) JSON
