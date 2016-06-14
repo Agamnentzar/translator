@@ -1,4 +1,4 @@
-﻿/// <reference path="jquery.min.js" />
+/// <reference path="jquery.min.js" />
 
 $.postJSON = function (url, data, success, error) {
 	$.ajax({ url: url, method: 'post', dataType: 'json', data: data, success: success, error: error });
@@ -407,20 +407,22 @@ $.postJSON = function (url, data, success, error) {
 	function clearModified() {
 		var target = $('#lang-target').data('lang');
 
-		$.postJSON('/api/clearModified', { setId: activeSet.id, lang: target }, function (result) {
-			if (result.error) {
-				console.log(result.error);
-				return;
-			}
+		if (target !== 'none' && confirm('are you sure ?')) {
+			$.postJSON('/api/clearModified', { setId: activeSet.id, lang: target }, function (result) {
+				if (result.error) {
+					console.log(result.error);
+					return;
+				}
 
-			var targetIndex = data.langIds.indexOf(target);
+				var targetIndex = data.langIds.indexOf(target);
 
-			data.terms.forEach(function (term) {
-				term.modified[targetIndex] = false;
+				data.terms.forEach(function (term) {
+					term.modified[targetIndex] = false;
+				});
+
+				rebuildRows();
 			});
-
-			rebuildRows();
-		});
+		}
 	}
 
 	function init() {

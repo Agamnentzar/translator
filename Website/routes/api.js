@@ -1,4 +1,4 @@
-﻿/// <reference path="../libs/_node.js" />
+/// <reference path="../libs/_node.js" />
 
 var model = require('../libs/model.js')
   , utils = require('../libs/utils.js')
@@ -154,41 +154,14 @@ exports.history = function (req, res) {
 };
 
 exports.set = function (req, res) {
-  Term.findById(req.body.termId, function (err, term) {
-    if (err || !term)
-      return res.json({ error: err || 'term not found' });
+	const termId = req.body.termId;
+	const lang = req.body.lang;
+	const user = req.user;
+	const value = req.body.value;
 
-    var lang = req.body.lang;
-
-    Entry.find({ termId: term.id, lang: lang, deleted: { $ne: true } }, function (err, entries) {
-      if (err)
-        return res.json({ error: err });
-
-      if (!(req.user.can('add', term.setId) || req.user.can('all', term.setId) || req.user.can(lang, term.setId)))
-        return res.json({ error: 'access denied' });
-
-      var e = new Entry();
-      e.setId = term.setId;
-      e.termId = term.id;
-      e.userId = req.user.id;
-      e.lang = lang;
-      e.date = Date.now();
-      e.value = req.body.value;
-      e.modified = true;
-      e.save(function (err) {
-        if (err)
-          return res.json({ error: err });
-
-        for (var i = 0; i < entries.length; i++) {
-          entries[i].deleted = true;
-          entries[i].deletedDate = Date.now();
-          entries[i].save();
-        }
-
-        res.json({ success: true });
-      });
-    });
-  });
+	model.setEntry(termId, lang, user.id, value, setId => user.can('add', setId) || user.can('all', setId) || user.can(lang, setId))
+		.then(() => res.json({ success: true }))
+		.catch(e => res.json({ error: e.message }));
 };
 
 exports.add = function (req, res) {

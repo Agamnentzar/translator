@@ -4,7 +4,7 @@ block pageContent
 	.buttons
 		.checkbox.pull-right
 			label
-				input.button-show-deleted(type='checkbox', autocomplete='off')
+				input.button-show-deleted(type='checkbox' autocomplete='off')
 				| Show deleted
 		a.btn.btn-sm.btn-primary(href='/sets/add') Add Set
 		| 
@@ -30,25 +30,48 @@ block pageContent
 						each l in s.langs
 							- var c = cultures.get(l)
 							if c
-								img.flag(src=c.flag, title=c.name)
+								img.flag(src=c.flag title=c.name)
 					td.commands
 						.btn-group-sm(role="group")
 							if s.deleted
 								a.btn.btn-sm.btn-default(href='/sets/restore/' + s.id) Restore
 							else
-								a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
-								a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
-								a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) Export
-								a.btn.btn-sm.btn-default(href='/sets/clone/' + s.id) Clone
-								a.btn.btn-sm.btn-default.confirm(href='/sets/clean/' + s.id title="Remove empty terms") Clean
-								.dropdown.btn-group
-									a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
-										| Copy to 
-										span.caret
-									ul.dropdown-menu.pull-right
-										each set in sets
-											if set !== s
-												li(class=set.deleted ? 'deleted' : '')
-													a.confirm(href='/sets/copy/' + s.id + '/' + set.id)
-														=set.title
-								a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id) Delete
+								.btn-group
+									a.btn.btn-sm.btn-default(href='/sets/versions/' + s.id) Versions
+									a.btn.btn-sm.btn-default(href='/sets/edit/' + s.id) Edit
+									a.btn.btn-sm.btn-default(href='/sets/export/' + s.id) JSON
+									.dropdown.btn-group
+										a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
+											| CSV 
+											span.caret
+										ul.dropdown-menu
+											each l in s.langs
+												- var cc = cultures.get(l)
+												if cc
+													li
+														a(href='/sets/export-csv/' + s.id + '/' + l + '.csv')
+															img.flag(src=cc.flag)
+															=cc.name
+
+									.dropdown.btn-group
+										a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
+											| Copy to 
+											span.caret
+										ul.dropdown-menu.pull-right
+											each set in sets
+												if set !== s
+													li(class=set.deleted ? 'deleted' : '')
+														a.confirm(href='/sets/copy/' + s.id + '/' + set.id)
+															=set.title
+									.dropdown.btn-group
+										a.btn.btn-sm.btn-default.dropdown-toggle(data-toggle="dropdown")
+											span.caret
+										ul.dropdown-menu.pull-right
+											li
+												a(href='/sets/clone/' + s.id) Clone
+											li
+												a(href='/sets/import-csv/' + s.id) Import from CSV
+											li
+												a.confirm(href='/sets/clean/' + s.id) Remove empty terms
+									a.btn.btn-sm.btn-danger.confirm(href='/sets/delete/' + s.id)
+										i.fa.fa-trash

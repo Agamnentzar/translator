@@ -1,7 +1,9 @@
 var fs = require('fs')
+	, Promise = require('bluebird')
   , utils = require('../libs/utils')
   , model = require('../libs/model')
-  , cultures = require('../libs/cultures');
+  , cultures = require('../libs/cultures')
+  , csv = require('../libs/csv.js');
 
 var Set = model.Set
   , Term = model.Term
@@ -15,7 +17,7 @@ function setupSet(set, src) {
 	set.langs = src.langs;
 	set.version = src.version;
 	set.changes = src.changes;
-	set.devices = src.devices.trim().split(/ /g).map(function (n) { return n.trim(); });
+	set.devices = src.devices.trim().split(/ /g).map(n => n.trim());
 }
 
 exports.index = function (req, res) {
@@ -71,62 +73,99 @@ exports.editPost = function (req, res) {
 	});
 };
 
+exports.importCSV = function (req, res) {
+	Set.findById(req.params.id, function (err, set) {
+		if (err || !set)
+			return res.render('error', { error: err || 'set not found' });
+
+		res.render('import-csv', { set: set });
+	});
+};
+
+exports.importCSVPost = function (req, res) {
+	const setId = req.params.id;
+
+	Promise.all([
+		Set.findById(setId).exec(),
+		Term.find({ setId: setId, deleted: { $ne: true } }).exec(),
+		Entry.find({ setId: setId, deleted: { $ne: true }, lang: 'key' }).exec(),
+	]).spread((set, terms, entries) => {
+		const user = req.user;
+		const data = req.file.buffer.toString('utf8');
+		const translations = csv.decode(data);
+
+		if (!set) {
+			throw new Error('set not found');
+		}
+
+		return Promise.map(translations, t => {
+			const keyEntry = entries.find(e => e.value === t[0]);
+
+			if (keyEntry) {
+				return Promise.map(t.slice(1), (value, index) => {
+					const termId = keyEntry.termId;
+					const lang = translations[1][index + 1];
+					return model.setEntry(termId, lang, user.id, value, () => true);
+				});
+			}
+		});
+	})
+		.then(() => res.redirect('/sets'))
+		.catch(error => res.render('error', { error: error }));
+};
+
 exports.import = function (req, res) {
 	var set = new Set();
 	res.render('import', { set: set });
 };
 
 exports.importPost = function (req, res) {
-	fs.readFile(req.files.file.path, function (err, data) {
-		if (err || !data)
-			return res.render('error', { error: err || 'no file sent' });
+	var data = req.file.buffer.toString('utf8');
+	var json = JSON.parse(data);
+	var langs = null;
 
-		var json = JSON.parse(data);
-		var langs = null;
-
-		for (var i = 0; i < json.length; i++) {
-			if (json[i][0] === 'LangId') {
-				langs = json[i].map(function (x) {
-					if (x === 'LangId')
-						return 'key';
-					if (x === 'us')
-						return 'en-US';
-					return x;
-				});
-			}
+	for (var i = 0; i < json.length; i++) {
+		if (json[i][0] === 'LangId') {
+			langs = json[i].map(function (x) {
+				if (x === 'LangId')
+					return 'key';
+				if (x === 'us')
+					return 'en-US';
+				return x;
+			});
 		}
+	}
 
-		var set = new Set();
-		set.title = req.body.title;
-		set.langs = langs.slice(1);
-		set.save(function (err, set) {
-			json.forEach(function (t, index) {
-				if (t[0] == 'LangId' || t[0] == 'Lang')
-					return;
+	var set = new Set();
+	set.title = req.body.title;
+	set.langs = langs.slice(1);
+	set.save(function (err, set) {
+		json.forEach(function (t, index) {
+			if (t[0] == 'LangId' || t[0] == 'Lang')
+				return;
 
-				var term = new Term();
-				term.setId = set.id;
-				term.date = Date.now();
-				term.userId = req.user.id;
-				term.order = index;
-				term.save(function (err, _term) {
-					t.forEach(function (l, li) {
-						if (l) {
-							var entry = new Entry();
-							entry.setId = set.id;
-							entry.termId = _term.id;
-							entry.userId = req.user.id;
-							entry.lang = langs[li];
-							entry.date = Date.now();
-							entry.value = (l || '').trim();
-							entry.save();
-						}
-					});
+			var term = new Term();
+			term.setId = set.id;
+			term.date = Date.now();
+			term.userId = req.user.id;
+			term.order = index;
+			term.save(function (err, _term) {
+				t.forEach(function (l, li) {
+					if (l) {
+						var entry = new Entry();
+						entry.setId = set.id;
+						entry.termId = _term.id;
+						entry.userId = req.user.id;
+						entry.lang = langs[li];
+						entry.date = Date.now();
+						entry.value = (l || '').trim();
+						entry.save();
+					}
 				});
 			});
-
-			res.redirect('/sets');
 		});
+
+		res.redirect('/sets');
 	});
 };
 
@@ -141,6 +180,27 @@ exports.export = function (req, res) {
 
 			res.charset = 'utf-8';
 			res.json(data);
+		});
+	});
+};
+
+exports.exportCSV = function (req, res) {
+	const lang = req.params.lang.replace(/\..*$/, '');
+
+	Set.findById(req.params.id, function (err, set) {
+		res.charset = 'utf-8';
+		res.set('Content-Type', 'text/csv');
+
+		if (err || !set)
+			return res.send(err || 'no set');
+
+		set.export(function (err, data) {
+			if (err)
+				return res.send(err);
+
+			const langIndex = data[1].indexOf(lang);
+			const result = data.map(x =>[x[0], x[langIndex]]);
+			res.send(csv.encode(result));
 		});
 	});
 };
@@ -207,7 +267,7 @@ exports.newVersionPost = function (req, res) {
 			if (err)
 				return res.render('error', { error: err });
 
-			var snapshot = new Snapshot();
+			const snapshot = new Snapshot();
 			snapshot.setId = set._id;
 			snapshot.userId = req.user._id;
 			snapshot.version = req.body.version;
@@ -244,21 +304,20 @@ exports.newVersionPost = function (req, res) {
 exports.delete = utils.deleteItem(Set, '/sets');
 exports.restore = utils.restoreItem(Set, '/sets');
 
-exports.deleteSnapshot = utils.deleteItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });
-exports.restoreSnapshot = utils.restoreItem(Snapshot, function (item) { return '/sets/versions/' + item.setId; });
+exports.deleteSnapshot = utils.deleteItem(Snapshot, item => '/sets/versions/' + item.setId);
+exports.restoreSnapshot = utils.restoreItem(Snapshot, item => '/sets/versions/' + item.setId);
 
 exports.print = function (req, res) {
 	Set.findById(req.params.id, function (err, set) {
 		if (err || !set)
 			return res.send(err || 'no set');
-		
+
 		set.export(function (err, data, modified) {
 			if (err || (data.length < 2))
 				return res.send(err || 'missing data');
 
-			var ref = data[1].indexOf(req.query.ref);
-			var target = data[1].indexOf(req.query.target);
-
+			const ref = data[1].indexOf(req.query.ref);
+			const target = data[1].indexOf(req.query.target);
 			res.render('print', { set: set, data: data, modified: modified, ref: ref, target: target });
 		});
 	});

@@ -64,11 +64,14 @@ setSchema.methods.export = function (callback) {
 
 			set.langs.forEach(function (l, i) {
 				var c = cultures.get(l);
-				json[0][i + 1] = c.name;
-				json[1][i + 1] = c.id;
-				modified[0][i + 1] = false;
-				modified[1][i + 1] = false;
-				langs[l] = i + 1;
+
+				if (c) {
+					json[0][i + 1] = c.name;
+					json[1][i + 1] = c.id;
+					modified[0][i + 1] = false;
+					modified[1][i + 1] = false;
+					langs[l] = i + 1;
+				}
 			});
 
 			terms.forEach(function (t) {
@@ -283,5 +286,34 @@ exports.clearEmptyTerms = function (setId) {
 				return term.save();
 			}
 		});
+	});
+};
+
+exports.setEntry = function (termId, lang, userId, value, hasAccess) {
+	return Promise.all([
+		Term.findById(termId).exec(),
+		Entry.find({ termId: termId, lang: lang, deleted: { $ne: true } }).exec(),
+	]).spread((term, entries) => {
+		if (!term)
+			throw new Error('term not found');
+
+		if (!hasAccess(term.setId))
+			throw new Error('access denied');
+
+		const e = new Entry();
+		e.setId = term.setId;
+		e.termId = term.id;
+		e.userId = userId;
+		e.lang = lang;
+		e.date = Date.now();
+		e.value = value;
+		e.modified = true;
+
+		return e.save()
+			.then(() => Promise.map(entries, e => {
+				e.deleted = true;
+				e.deletedDate = Date.now();
+				return e.save();
+			}));
 	});
 };

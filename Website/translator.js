@@ -3,8 +3,10 @@ var http = require('http');
 var path = require('path');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+var multer = require('multer');
 var config = require('./config.json');
 
+mongoose.Promise = require('bluebird');
 mongoose.connect(config.db.uri, config.db.options);
 
 var routes = require('./routes');
@@ -18,6 +20,7 @@ var auth = require('./libs/auth');
 var cultures = require('./libs/cultures');
 var timestamp = require('./libs/timestamp.js');
 
+var upload = multer();
 var app = express();
 var production = process.env.NODE_ENV === 'production';
 var staticContentAge = production ? (1000 * 3600 * 24 * 365) : 0;
@@ -26,6 +29,7 @@ var admin = auth.admin;
 app.set('port', process.env.PORT || config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.set('view options', { doctype: 'html5' });
 
 if (production)
 	app.use(require('compression')());
@@ -79,13 +83,16 @@ app.post('/users/edit/:id', auth, users.editPost);
 app.get('/sets', admin, sets.index);
 app.get('/sets/add', admin, sets.add);
 app.post('/sets/add', admin, sets.addPost);
+app.get('/sets/import-csv/:id', admin, sets.importCSV);
+app.post('/sets/import-csv/:id', upload.single('file'), admin, sets.importCSVPost);
 app.get('/sets/import', admin, sets.import);
-app.post('/sets/import', admin, sets.importPost);
+app.post('/sets/import', upload.single('file'), admin, sets.importPost);
 app.get('/sets/edit/:id', admin, sets.edit);
 app.post('/sets/edit/:id', admin, sets.editPost);
 app.get('/sets/delete/:id', admin, sets.delete);
 app.get('/sets/restore/:id', admin, sets.restore);
 app.get('/sets/export/:id', admin, sets.export);
+app.get('/sets/export-csv/:id/:lang', admin, sets.exportCSV);
 app.get('/sets/clone/:id', admin, sets.clone);
 app.post('/sets/clone/:id', admin, sets.clonePost);
 app.get('/sets/versions/:id', admin, sets.versions);

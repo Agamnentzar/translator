@@ -1,8 +1,8 @@
-﻿/// <reference path="jquery.min.js" />
+/// <reference path="jquery.min.js" />
 /// <reference path="moment.min.js" />
 
 $(function () {
-  $('[title]').tooltip();
+	$('[title]').tooltip({ container: 'body' });
 
   $(document).on('click', '.confirm', function () {
     return confirm($(this).data('confirm') || 'Are you sure ?');
