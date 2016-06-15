@@ -44,6 +44,8 @@ block pageContent
 						- var c = cultures.get(l);
 						if c
 							+lang(c.id, c.name)
+						else
+							+lang(l, c.id + ' (unknown)')
 			.form-group
 				.col-sm-offset-4.col-sm-8
 					select.form-items-selector.form-control
