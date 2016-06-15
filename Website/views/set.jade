@@ -1,6 +1,6 @@
 extends pageLayout
 
-mixin lang(id, name)
+mixin lang(id, name, flag)
 	.lang-entry.form-control-static
 		input(type='hidden', name='langs[]', value=id)
 		.pull-right
@@ -9,7 +9,7 @@ mixin lang(id, name)
 			button.form-items-down.btn.btn-xs.btn-default(data-lang=id) ▼
 			| 
 			button.form-items-remove.btn.btn-xs.btn-default(data-lang=id) remove
-		img.flag(src='/images/flags/' + id + '.png')
+		img.flag(src='/images/flags/' + flag + '.png')
 		b=name
 
 block pageContent
@@ -43,9 +43,9 @@ block pageContent
 					each l in set.langs
 						- var c = cultures.get(l);
 						if c
-							+lang(c.id, c.name)
+							+lang(c.id, c.name, c.id)
 						else
-							+lang(l, l + ' (unknown)')
+							+lang(l, l + ' (unknown)', 'none')
 			.form-group
 				.col-sm-offset-4.col-sm-8
 					select.form-items-selector.form-control

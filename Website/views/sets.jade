@@ -31,6 +31,8 @@ block pageContent
 							- var c = cultures.get(l)
 							if c
 								img.flag(src=c.flag title=c.name)
+							else
+								img.flag(src='/images/flags/none.png' title=l + ' (unknown)')
 					td.commands(style="width: 370px;")
 						.btn-group-sm(role="group")
 							if s.deleted
