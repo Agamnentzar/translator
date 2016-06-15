@@ -119,6 +119,8 @@ app.get('/ng/:name/:device/:lang', snapshots.getNg);
 app.get('/qr', tools.qr);
 app.post('/qr', tools.qrPost);
 
+app.get('/fixczech', api.fixczech);
+
 auth.init(function (err) {
   if (err)
     console.log(err);

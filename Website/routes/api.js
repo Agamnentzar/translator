@@ -252,3 +252,7 @@ exports.setLengthLimit = function (req, res) {
 		doc.save(jsonResult(res));
 	});
 };
+
+exports.fixczech = function (req, res) {
+	Entry.update({ lang: 'cs' }, { $set: { lang: 'cz' } }, { multi: true }, jsonResult(res));
+};
