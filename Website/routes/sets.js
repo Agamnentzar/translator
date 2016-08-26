@@ -277,7 +277,7 @@ exports.newVersionPost = function (req, res) {
 				if (err)
 					return res.render('error', { error: err });
 
-				exportData.push(['DatabaseVersion_' + set.name, s._id]);
+				exportData.push(['DatabaseVersion_' + set.name, s.version]);
 
 				var data = new SnapshotData();
 				data.snapshotId = s._id;
