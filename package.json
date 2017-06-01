@@ -15,9 +15,7 @@
     "mongoose": "^4.5.0",
     "morgan": "^1.7.0",
     "multer": "^1.1.0",
-    "serve-favicon": "^2.3.0"
-  },
-  "devDependencies": {
+    "serve-favicon": "^2.3.0",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.1",
     "gulp-live-server": "0.0.30",
