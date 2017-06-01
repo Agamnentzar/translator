@@ -4,10 +4,9 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var multer = require('multer');
-var config = require('./config.json');
 
 mongoose.Promise = require('bluebird');
-mongoose.connect(config.db.uri, config.db.options);
+mongoose.connect(process.env.MONGODB_URI);
 
 var routes = require('./routes');
 var users = require('./routes/users');
@@ -26,7 +25,7 @@ var production = process.env.NODE_ENV === 'production';
 var staticContentAge = production ? (1000 * 3600 * 24 * 365) : 0;
 var admin = auth.admin;
 
-app.set('port', process.env.PORT || config.port);
+app.set('port', process.env.PORT || 8080);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.set('view options', { doctype: 'html5' });
