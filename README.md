@@ -4,19 +4,20 @@ Web application for managing translations
 
 ## Config
 
-Put config.json file in this directory
+Put config.json file in this directory:
 
 ```json
 {
 	"port": 1234,
-	"db": {
-		"uri": "mongodb://...",
-		"options": {
-			"user": "...",
-			"pass": "..."
-		}
-	}
+	"db": "mongodb://..."
 }
+```
+
+or use ENV variables:
+
+```
+MONGODB_URI=mongodb://...
+PORT=1234
 ```
 
 Default admin user is automatically added when starting application with empty users table.

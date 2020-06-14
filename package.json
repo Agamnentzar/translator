@@ -1,6 +1,6 @@
 {
   "name": "verity-translator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "gulp prod"
@@ -11,17 +11,16 @@
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
+    "gulp": "^4.0.2",
+    "gulp-if": "^3.0.0",
+    "gulp-live-server": "0.0.31",
+    "gulp-minify-css": "^1.2.2",
+    "gulp-sass": "^4.1.0",
+    "gulp-sourcemaps": "^2.6.5",
     "jade": "^1.11.0",
-    "mongoose": "^4.5.0",
+    "mongoose": "^5.9.18",
     "morgan": "^1.7.0",
     "multer": "^1.1.0",
-    "serve-favicon": "^2.3.0",
-    "gulp": "^3.9.0",
-    "gulp-if": "^2.0.1",
-    "gulp-live-server": "0.0.30",
-    "gulp-minify-css": "^1.2.2",
-    "gulp-sass": "^3.1.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "run-sequence": "^1.2.1"
+    "serve-favicon": "^2.3.0"
   }
 }

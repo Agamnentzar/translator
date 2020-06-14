@@ -6,18 +6,16 @@ var mongoose = require('mongoose');
 var multer = require('multer');
 var fs = require('fs');
 var mongoUri = process.env.MONGODB_URI;
-var mongoOptions = {};
 var port = process.env.PORT || 8080;
 
 try {
   var config = JSON.parse(fs.readFileSync('./config.json'), 'utf8');
-  mongoUri = config.db.uri;
-  mongoOptions = config.db.options || {};
+  mongoUri = config.db || mongoUri;
   port = config.port || port;
 } catch (e) {}
 
 mongoose.Promise = require('bluebird');
-mongoose.connect(mongoUri, mongoOptions);
+mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 var routes = require('./routes');
 var users = require('./routes/users');

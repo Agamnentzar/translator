@@ -3,29 +3,28 @@ var sass = require('gulp-sass');
 var gulpif = require('gulp-if');
 var minifyCSS = require('gulp-minify-css');
 var sourcemaps = require('gulp-sourcemaps');
-var runSequence = require('run-sequence');
 var liveServer = require('gulp-live-server');
-var dev = true;
+var isDev = true;
 
-gulp.task('set-prod', function () {
-	dev = false;
-});
+const setProd = cb => {
+	isDev = false;
+	cb();
+};
 
-gulp.task('sass', function () {
-	return gulp.src('src/styles/style.scss')
-		.pipe(gulpif(dev, sourcemaps.init()))
-		.pipe(sass().on('error', sass.logError))
-		.pipe(gulpif(!dev, minifyCSS({ keepSpecialComments: 0 })))
-		.pipe(gulpif(dev, sourcemaps.write()))
-		.pipe(gulp.dest('build/styles'));
-});
+const buildSass = () => gulp.src('src/styles/style.scss')
+	.pipe(gulpif(isDev, sourcemaps.init()))
+	.pipe(sass().on('error', sass.logError))
+	.pipe(gulpif(!isDev, minifyCSS({ keepSpecialComments: 0 })))
+	.pipe(gulpif(isDev, sourcemaps.write()))
+	.pipe(gulp.dest('build/styles'));
 
-gulp.task('server-prod', function () {
+const serverProd = cb => {
 	var server = liveServer(['translator.js', '--color'], { env: { NODE_ENV: 'production' } }, false);
 	server.start();
-});
+	cb();
+};
 
-gulp.task('server-dev', function () {
+const serverDev = cb => {
 	var server = liveServer(['translator.js', '--color'], {});
 	server.start();
 
@@ -36,16 +35,15 @@ gulp.task('server-dev', function () {
 	gulp.watch(['translator.js', 'routes/**/*.js', 'libs/**/*.js'], function () {
 		server.start();
 	});
-});
+	cb();
+};
 
-gulp.task('watch', function () {
-	gulp.watch(['src/styles/**/*.scss'], ['sass']);
-});
+const watch = cb => {
+	gulp.watch(['src/styles/**/*.scss'], buildSass);
+	cb();
+};
 
-gulp.task('prod', function (done) {
-	runSequence('set-prod', 'sass', 'server-prod', done);
-});
+const prod = gulp.series(setProd, buildSass, serverProd);
+const dev = gulp.series(buildSass, serverDev, watch);
 
-gulp.task('dev', function (done) {
-	runSequence('sass', ['server-dev', 'watch'], done);
-});
+module.exports = { watch, prod, dev };
